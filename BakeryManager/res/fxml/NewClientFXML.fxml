@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import fxml.other.*?>
+
+<GridPane id="NewCliGrid" prefHeight="300" prefWidth="450" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1">
+    <stylesheets>
+        <URL value="@/css/MainCss.css"/>
+    </stylesheets>
+    <rowConstraints>
+        <RowConstraints fx:id="row" minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="15.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="15.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="15.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="15.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="15.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="15.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="5.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="5.0" vgrow="SOMETIMES" />
+    </rowConstraints>
+    <children>
+        <Label fx:id="title" text="ADHER Service"  GridPane.rowIndex="0" GridPane.halignment="CENTER" />
+        
+        <FlowPane GridPane.rowIndex="1" styleClass="bar" maxHeight="30" />
+        
+        <Label fx:id="subtitle" styleClass="subtitle" text="Nouveau client" GridPane.rowIndex="1" GridPane.halignment="CENTER" />
+        <VBox GridPane.rowIndex="2" GridPane.rowSpan="3" spacing="10">
+        
+            <VBox>
+                <Label text="Nom client : " />
+                <TextField fx:id="nomCli" prefWidth="150" />
+            </VBox>
+            
+            <VBox>
+                <Label text="Prenom client : " />
+                <TextField fx:id="prenomCli" prefWidth="150" />
+            </VBox>
+            <VBox>
+                <Label text="Tel. client : " />
+                <NumberField fx:id="telCli" prefWidth="150" />
+            </VBox>
+
+        </VBox>
+        <VBox GridPane.rowIndex="5">
+            <Label text="Libellé Adresse Client (Rue et Numero) : " />
+            <TextField fx:id="libRue" prefWidth="150" />
+        </VBox>
+        <HBox GridPane.rowIndex="6" spacing="10" >
+            <VBox>
+            <Label text="Ville client : " />
+            <TextField fx:id="villeCli" prefWidth="200" />
+            </VBox>
+            <VBox>
+            <Label text="Code Postal : " />
+            <NumberField fx:id="cdeVCli" prefWidth="50" />
+            </VBox>
+        </HBox>
+                    
+        <HBox spacing="20"  GridPane.rowIndex="8" alignment="CENTER">
+            <Button onAction="#resetBtn" fx:id="reset" maxHeight="30" prefWidth="100" styleClass="btn" >Reset</Button>
+            <Button onAction="#validBtn" fx:id="valid" maxHeight="30" prefWidth="100" styleClass="btn" >Validation</Button>
+        </HBox>
+    </children>
+</GridPane>
