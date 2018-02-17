@@ -15,15 +15,15 @@ import java.util.Date;
 public class Intervention extends ObjectE{
     private final SimpleDateFormat format = new SimpleDateFormat("dd/MM/YYYY");
     private static int genID = 0;
-    private Client client;
-    private Adherent adherent;
+    private Personne client;
+    private Fournisseur adherent;
     private Date dateDebut;
     private Date dateFin;
     private SecteurGeographique secteur;
     private Activité activité;
     private Integer num = 0;
  
-    public Intervention(Client client, Adherent adherent, Date dateDebut, Date dateFin, SecteurGeographique secteur, Activité activité){
+    public Intervention(Personne client, Fournisseur adherent, Date dateDebut, Date dateFin, SecteurGeographique secteur, Activité activité){
         this.client=client;
         this.adherent=adherent;
         this.dateDebut = dateDebut;
@@ -34,7 +34,7 @@ public class Intervention extends ObjectE{
         this.num = genID;
     }
 
-    public Intervention(Client client, Adherent adherent, Date dateDebut, Date dateFin, SecteurGeographique secteur, Activité activité, int num) {
+    public Intervention(Personne client, Fournisseur adherent, Date dateDebut, Date dateFin, SecteurGeographique secteur, Activité activité, int num) {
         this.client=client;
         this.adherent=adherent;
         this.dateDebut = dateDebut;

@@ -289,8 +289,8 @@ public class MainWindowController implements Initializable {
     
     
     //Non FXML attribut
-    public Groupe<Client> groupeClient = new Groupe("Groupe Client");
-    public Groupe<Adherent> groupeAdherent = new Groupe("Groupe Adherent");
+    public Groupe<Personne> groupeClient = new Groupe("Groupe Client");
+    public Groupe<Fournisseur> groupeAdherent = new Groupe("Groupe Adherent");
     public Groupe<Intervention> groupeInter = new Groupe("Groupe Intervention");
     public Groupe<Demande> groupeDem = new Groupe("Groupe Demande");
     
@@ -302,8 +302,8 @@ public class MainWindowController implements Initializable {
 
     
     public void validBtn() throws Exception{
-        groupeClient.addToGroupe(new Client("Michel","Le brezil", "0202020202", "rue des fenetres", new SecteurGeographique("100-Les Velux")));
-        groupeAdherent.addToGroupe(new Adherent("bob", "le bricoleur", "rue des clou", new Date(1000), new Date(1000),new SecteurGeographique("100-Les Velux"),Activité.Electricité));
+        groupeClient.addToGroupe(new Personne("Michel","Le brezil", "0202020202", "rue des fenetres", new SecteurGeographique("100-Les Velux")));
+        groupeAdherent.addToGroupe(new Fournisseur("bob", "le bricoleur", "rue des clou", new Date(1000), new Date(1000),new SecteurGeographique("100-Les Velux"),Activité.Electricité));
         if(ra.isSelected()){
             //Validation registre d'appel
             ajouterDemande();
@@ -380,7 +380,7 @@ public class MainWindowController implements Initializable {
         df = c.getTime();
         
         SecteurGeographique s = new SecteurGeographique(cdeVille.getText() + "-" + ville.getText());
-        Adherent e = new Adherent( nom.getText(), nomResp.getText(), numRue.getText()+" "+NomVoie.getText(), dd, df, s,(Activité) actCb.getSelectionModel().getSelectedItem());
+        Fournisseur e = new Fournisseur( nom.getText(), nomResp.getText(), numRue.getText()+" "+NomVoie.getText(), dd, df, s,(Activité) actCb.getSelectionModel().getSelectedItem());
         groupeAdherent.addToGroupe(e);
         listeSecteurGeographique.add(s.toString());
         refresh();
@@ -409,10 +409,10 @@ public class MainWindowController implements Initializable {
     }
     
     public void renouvellementAdherent() {
-        ArrayList<Adherent> l = groupeAdherent.getList();
-        ArrayList<Adherent> afc = new ArrayList<>();
+        ArrayList<Fournisseur> l = groupeAdherent.getList();
+        ArrayList<Fournisseur> afc = new ArrayList<>();
         
-        for( Adherent a : l)
+        for( Fournisseur a : l)
             if(a.getDateSortie().compareTo(new Date()) < 0) {
                 System.out.println(a.toString()+" : fin de contrat");
                 afc.add(a);
@@ -432,7 +432,7 @@ public class MainWindowController implements Initializable {
     
     public void ajouterDemande() throws Exception{
         if(!clientA.equals("----------") && clientA.getSelectionModel().getSelectedItem() != null && clientA.getSelectionModel().getSelectedIndex() != 0){
-            Client a = groupeClient.getPersonne(clientA.getSelectionModel().getSelectedItem().toString());
+            Personne a = groupeClient.getPersonne(clientA.getSelectionModel().getSelectedItem().toString());
             int h = (int)hours.getValue();
             int m = (int)minutes.getValue();
             Demande dem = new Demande(a, new Date(),h, m, demande.getText());

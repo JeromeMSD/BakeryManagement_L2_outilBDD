@@ -16,14 +16,14 @@ import javafx.util.converter.DateTimeStringConverter;
  */
 public class Demande extends ObjectE {
     private final SimpleDateFormat format = new SimpleDateFormat("dd/MM/YYYY");
-    private Client client;
+    private Personne client;
     private int heureAppel;
     private int minAppel;
     private String demande;
     private Date jourAppel;
             
     
-    public Demande (Client client, Date jourAppel, int heureAppel, int minAppel, String demande){
+    public Demande (Personne client, Date jourAppel, int heureAppel, int minAppel, String demande){
         this.client=client;
         this.heureAppel=heureAppel;
         this.minAppel=minAppel;
@@ -31,7 +31,7 @@ public class Demande extends ObjectE {
         this.jourAppel=jourAppel;
     }
     
-    public Client getClient(){
+    public Personne getClient(){
         return this.client;
     }
     

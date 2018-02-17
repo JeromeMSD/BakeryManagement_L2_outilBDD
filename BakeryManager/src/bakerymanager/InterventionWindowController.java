@@ -55,8 +55,8 @@ public class InterventionWindowController implements Initializable {
   
     private final SimpleDateFormat format = new SimpleDateFormat("dd/MM/YYYY");
     private Groupe<Intervention> gi = new Groupe<>("Intervention");
-    private Groupe<Client> gc = new Groupe<>("Client");
-    private Groupe<Adherent> ga = new Groupe<>("Adherent");
+    private Groupe<Personne> gc = new Groupe<>("Client");
+    private Groupe<Fournisseur> ga = new Groupe<>("Adherent");
     
     private String nonSelectionne = new String("----------");
     private Stage stage;
@@ -96,8 +96,8 @@ public class InterventionWindowController implements Initializable {
     public void validBtn() throws Exception{
         Date debut = null;
         Date fin = null;
-        Client c = null;
-        Adherent a = null;
+        Personne c = null;
+        Fournisseur a = null;
         // Si un client a été selectionner
             if(!client.getSelectionModel().getSelectedItem().equals("----------"))
                 c = gc.getPersonne((String) client.getSelectionModel().getSelectedItem());
@@ -121,7 +121,7 @@ public class InterventionWindowController implements Initializable {
     
     public void clientC() throws Exception{
         try{
-            Client c = gc.getPersonne((String) client.getSelectionModel().getSelectedItem());
+            Personne c = gc.getPersonne((String) client.getSelectionModel().getSelectedItem());
             sec.setText(c.getSecteurGeographique().toString());
         }catch (NotFound n){
             ;

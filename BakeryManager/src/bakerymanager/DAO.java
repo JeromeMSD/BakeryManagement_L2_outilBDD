@@ -30,7 +30,7 @@ public class DAO {
     private final static String DEMANDE_FILE_NAME = "demandes.txt";
     private DateTimeStringConverter format = new DateTimeStringConverter(Locale.FRANCE,"dd/MM/YYYY");
     
-    public void saveClients(Groupe<Client> gc){
+    public void saveClients(Groupe<Personne> gc){
         File file = new File(  CLIENT_FILE_NAME);
         ArrayList<String> gs = gc.save();
         FileWriter fw  = null;
@@ -59,7 +59,7 @@ public class DAO {
         }
     }
 
-    public void saveAdherents(Groupe<Adherent> ga) {
+    public void saveAdherents(Groupe<Fournisseur> ga) {
         File file = new File(  ADHERENT_FILE_NAME);
         ArrayList<String> gs = ga.save();
         FileWriter fw  = null;
@@ -145,15 +145,15 @@ public class DAO {
         }
     }
     
-    public void save(Groupe<Client> gc, Groupe<Adherent> ga, Groupe<Intervention> gi,Groupe<Demande> gd){
+    public void save(Groupe<Personne> gc, Groupe<Fournisseur> ga, Groupe<Intervention> gi,Groupe<Demande> gd){
         saveClients(gc);
         saveAdherents(ga);
         saveDemandes(gd);
         saveInterventions(gi);
     }
     
-    public ArrayList<Client> loadClients() {
-        ArrayList<Client> l = new ArrayList<>();
+    public ArrayList<Personne> loadClients() {
+        ArrayList<Personne> l = new ArrayList<>();
         File file = new File(  CLIENT_FILE_NAME);
         FileReader fr = null;
         BufferedReader br = null;
@@ -166,7 +166,7 @@ public class DAO {
             
             while(str != null){
                 strSplit = str.split(SEPARATOR);
-                l.add(new Client(strSplit[0], strSplit[1], strSplit[2], strSplit[3], new SecteurGeographique(strSplit[4])));
+                l.add(new Personne(strSplit[0], strSplit[1], strSplit[2], strSplit[3], new SecteurGeographique(strSplit[4])));
                 str = br.readLine();
             }
             
@@ -187,8 +187,8 @@ public class DAO {
         return l;
     }
 
-    public ArrayList<Adherent> loadAdherents() {
-        ArrayList<Adherent> l = new ArrayList<>();
+    public ArrayList<Fournisseur> loadAdherents() {
+        ArrayList<Fournisseur> l = new ArrayList<>();
         File file = new File(  ADHERENT_FILE_NAME);
         FileReader fr = null;
         BufferedReader br = null;
@@ -201,7 +201,7 @@ public class DAO {
             
             while(str != null){
                 strSplit = str.split(SEPARATOR);
-                l.add(new Adherent(strSplit[0], strSplit[1], strSplit[2], format.fromString(strSplit[3]), format.fromString(strSplit[4]), new SecteurGeographique(strSplit[5]),Activité.get(strSplit[6])));
+                l.add(new Fournisseur(strSplit[0], strSplit[1], strSplit[2], format.fromString(strSplit[3]), format.fromString(strSplit[4]), new SecteurGeographique(strSplit[5]),Activité.get(strSplit[6])));
                 str = br.readLine();
             }
             
@@ -222,7 +222,7 @@ public class DAO {
         return l;
     }
 
-    public ArrayList<Intervention> loadInterventions(Groupe<Client> gc, Groupe<Adherent> ga) {
+    public ArrayList<Intervention> loadInterventions(Groupe<Personne> gc, Groupe<Fournisseur> ga) {
         ArrayList<Intervention> l = new ArrayList<>();
         File file = new File(  INTERVENTION_FILE_NAME);
         FileReader fr = null;
@@ -258,7 +258,7 @@ public class DAO {
         
         return l;
     }
-    public ArrayList<Demande> loadDemandes(Groupe<Client> gc) {
+    public ArrayList<Demande> loadDemandes(Groupe<Personne> gc) {
         ArrayList<Demande> l = new ArrayList<>();
         File file = new File(  DEMANDE_FILE_NAME);
         FileReader fr = null;

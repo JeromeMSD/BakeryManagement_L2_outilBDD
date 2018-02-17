@@ -59,7 +59,7 @@ public class NewClientFXMLController implements Initializable {
                     if(!"".equals(libRue.getText()))
                         if(!"".equals(villeCli.getText()))
                             if(!"".equals(cdeVCli.getText())){
-                                 gc.addToGroupe( new Client(nomCli.getText(),prenomCli.getText(),telCli.getText(),libRue.getText(),new SecteurGeographique(Integer.parseInt(cdeVCli.getText()), villeCli.getText())));
+                                 gc.addToGroupe( new Personne(nomCli.getText(),prenomCli.getText(),telCli.getText(),libRue.getText(),new SecteurGeographique(Integer.parseInt(cdeVCli.getText()), villeCli.getText())));
                                  subtitle.setText("Client Ajouté !");
                                  stage = (Stage) valid.getScene().getWindow();
                                  stage.close();
