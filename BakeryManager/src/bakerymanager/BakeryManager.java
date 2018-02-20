@@ -5,13 +5,19 @@
  */
 package bakerymanager;
 
+import static javafx.application.Application.launch;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+
 /**
  *
  * @author jeromem
  */
 public class BakeryManager {
 
-    @Override
     public void start(Stage primaryStage) throws Exception {
         MainWindowController mWC = new MainWindowController();
  
