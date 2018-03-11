@@ -56,6 +56,17 @@ public class MainWindowController implements Initializable {
     private RadioButton lst;
     
     
+    @FXML
+    private ListView cmdList;
+    @FXML
+    private ListView fourList;
+    @FXML
+    private ListView clientList;
+    @FXML
+    private ListView ingList;
+    @FXML
+    private ListView prodList;
+    
     
     // <editor-fold defaultstate="collapsed" desc="Affichage composant FXML">
     public void cleanScreen(){
@@ -103,7 +114,6 @@ public class MainWindowController implements Initializable {
     
     @FXML
     public void delCmd(){
-        
     }
     // </editor-fold>
     
@@ -121,6 +131,8 @@ public class MainWindowController implements Initializable {
     
     @FXML
     public void delFour(){
+        //Fournisseur f = fourList.getSelectionModel().getSelectedItem();
+        //DELETE FROM FOURNISSEUR WHERE id_fournisseur=f.getId();
         
     }
     // </editor-fold>
@@ -138,7 +150,8 @@ public class MainWindowController implements Initializable {
     
     @FXML
     public void delClient(){
-        
+        //Client c = clientList.getSelectionModel().getSelectedItem();
+        //DELETE FROM PERSONNE WHERE id_personne=c.getId();
     }
     // </editor-fold>
     
@@ -156,7 +169,8 @@ public class MainWindowController implements Initializable {
     
     @FXML
     public void delIng(){
-        
+        //Ingredient i = ingList.getSelectionModel().getSelectedItem();
+        //DELETE FROM INGREDIENT WHERE id_ingredientt=i.getId();
     }
     // </editor-fold>
     
@@ -173,7 +187,8 @@ public class MainWindowController implements Initializable {
     
     @FXML
     public void delProd(){
-        
+        //Produit p = prodList.getSelectionModel().getSelectedItem();
+        //DELETE FROM PRODUIT WHERE id_produit=p.getId();
     }
     // </editor-fold>
     
