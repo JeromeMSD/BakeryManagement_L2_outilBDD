@@ -25,23 +25,25 @@
         <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
         <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
         <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
+        <ColumnConstraints hgrow="SOMETIMES" percentWidth="10.0" />
     </columnConstraints>
     <rowConstraints>
         <RowConstraints fx:id="row" minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="5.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="5.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
-        <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="5.0" vgrow="SOMETIMES" />
     </rowConstraints>
     <children>
-        
-        <Label fx:id="title" text="Bakery Manager" GridPane.columnIndex="0" GridPane.columnSpan="10" GridPane.rowIndex="0"  GridPane.halignment="CENTER"/>
-        
+        <Label fx:id="title" text="Bakery Manager" GridPane.columnIndex="0" GridPane.columnSpan="11" GridPane.rowIndex="0"  GridPane.halignment="CENTER"/>
+        <!--
         <fx:define>
             <ToggleGroup fx:id="option"/>  
         </fx:define>
@@ -58,9 +60,88 @@
             <RadioButton fx:id="lst" onAction="#showListe" toggleGroup="$option" />
         </VBox>
         
-        <FlowPane  GridPane.columnIndex="0" GridPane.columnSpan="10" GridPane.rowIndex="2" styleClass="bar" maxHeight="40" />
+        <FlowPane  GridPane.columnIndex="0" GridPane.columnSpan="10" GridPane.rowIndex="0" styleClass="bar" maxHeight="40" />
+        <Label fx:id="subtitle" styleClass="subtitle" text="Bakery Manager" GridPane.columnIndex="0" GridPane.columnSpan="10" GridPane.rowIndex="2" GridPane.halignment="CENTER" />
+        -->
         
-        <Label fx:id="subtitle" styleClass="subtitle" text="Registre d'appel" GridPane.columnIndex="0" GridPane.columnSpan="10" GridPane.rowIndex="2" GridPane.halignment="CENTER" />
-
+        <VBox GridPane.columnIndex="1" GridPane.columnSpan="9" GridPane.rowIndex="1" GridPane.rowSpan="3">
+            <Label text="Liste des Commandes"/>
+            <ListView  fx:id="cmdList" />
+            <GridPane alignment="CENTER" >
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                </columnConstraints>
+                <Button onAction="#addCmd" styleClass="btn" GridPane.columnIndex="0" GridPane.Halignment="CENTER">+</Button>            
+                <Button onAction="#modCmd" styleClass="btn" GridPane.columnIndex="1" GridPane.Halignment="CENTER">Modifier</Button>                        
+                <Button onAction="#delCmd" styleClass="btn" GridPane.columnIndex="2" GridPane.Halignment="CENTER">-</Button>            
+            </GridPane>
+        </VBox>
+        
+        
+        <VBox GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="5" GridPane.rowSpan="3">
+            <Label text="Liste des Ingredients"/>
+            <ListView  fx:id="ingList" />
+            <GridPane alignment="CENTER" >
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                </columnConstraints>
+                <Button onAction="#addIng" styleClass="btn" GridPane.columnIndex="0" GridPane.Halignment="CENTER">+</Button>            
+                <Button onAction="#modIng" styleClass="btn" GridPane.columnIndex="1" GridPane.Halignment="CENTER">Modifier</Button>                        
+                <Button onAction="#delIng" styleClass="btn" GridPane.columnIndex="2" GridPane.Halignment="CENTER">-</Button>            
+            </GridPane>
+        </VBox>
+        
+        
+        <VBox GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="5" GridPane.rowSpan="3">
+            <Label text="Liste des Produit"/>
+            <ListView  fx:id="prodList" />
+            <GridPane alignment="CENTER" >
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                </columnConstraints>
+                <Button onAction="#addProd" styleClass="btn" GridPane.columnIndex="0" GridPane.Halignment="CENTER">+</Button>            
+                <Button onAction="#modProd" styleClass="btn" GridPane.columnIndex="1" GridPane.Halignment="CENTER">Modifier</Button>                        
+                <Button onAction="#delProd" styleClass="btn" GridPane.columnIndex="2" GridPane.Halignment="CENTER">-</Button>            
+            </GridPane>
+        </VBox>
+        
+        
+        <VBox GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="9" GridPane.rowSpan="2">
+            <Label text="Liste des Fournisseurs"/>
+            <ListView  fx:id="fourList" />
+            <GridPane alignment="CENTER" >
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                </columnConstraints>
+                <Button onAction="#addFour" styleClass="btn" GridPane.columnIndex="0" GridPane.Halignment="CENTER">+</Button>            
+                <Button onAction="#modFour" styleClass="btn" GridPane.columnIndex="1" GridPane.Halignment="CENTER">Modifier</Button>                        
+                <Button onAction="#delFour" styleClass="btn" GridPane.columnIndex="2" GridPane.Halignment="CENTER">-</Button>            
+            </GridPane>
+        </VBox>
+        
+        <VBox GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="9" GridPane.rowSpan="2">
+            <Label text="Liste des Clients"/>
+            <ListView  fx:id="clientList" />
+            <GridPane alignment="CENTER" >
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                </columnConstraints>
+                <Button onAction="#addClient" styleClass="btn" GridPane.columnIndex="0" GridPane.Halignment="CENTER">+</Button>            
+                <Button onAction="#modClient" styleClass="btn" GridPane.columnIndex="1" GridPane.Halignment="CENTER">Modifier</Button>                        
+                <Button onAction="#delClient" styleClass="btn" GridPane.columnIndex="2" GridPane.Halignment="CENTER">-</Button>            
+            </GridPane>
+        </VBox>
+        
+        
     </children>
 </GridPane>

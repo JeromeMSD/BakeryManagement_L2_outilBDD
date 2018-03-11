@@ -90,6 +90,93 @@ public class MainWindowController implements Initializable {
     //</editor-fold>
     
     
+    // <editor-fold defaultstate="collapsed" desc="Fonction pour les Commandes">
+    @FXML
+    public void addCmd(){
+        
+    }
+    
+    @FXML
+    public void modCmd(){
+        
+    }
+    
+    @FXML
+    public void delCmd(){
+        
+    }
+    // </editor-fold>
+    
+    
+    // <editor-fold defaultstate="collapsed" desc="Fonction pour les Fournisseurs">
+    @FXML
+    public void addFour(){
+        
+    }
+    
+    @FXML
+    public void modFour(){
+        
+    }
+    
+    @FXML
+    public void delFour(){
+        
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Fonction pour les CLient">
+    @FXML
+    public void addClient(){
+        
+    }
+    
+    @FXML
+    public void modClient(){
+        
+    }
+    
+    @FXML
+    public void delClient(){
+        
+    }
+    // </editor-fold>
+    
+    
+    // <editor-fold defaultstate="collapsed" desc="Fonction pour les ingredients">
+    @FXML
+    public void addIng(){
+        
+    }
+    
+    @FXML
+    public void modIng(){
+        
+    }
+    
+    @FXML
+    public void delIng(){
+        
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Fonction pour les produit">
+    @FXML
+    public void addProd(){
+        
+    }
+    
+    @FXML
+    public void modProd(){
+        
+    }
+    
+    @FXML
+    public void delProd(){
+        
+    }
+    // </editor-fold>
+    
     /**
      * Initializes the controller class.
      */
