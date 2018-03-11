@@ -5,6 +5,7 @@
  */
 package bakerymanager;
 
+import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,7 +17,7 @@ import javafx.stage.WindowEvent;
  *
  * @author jeromem
  */
-public class BakeryManager {
+public class BakeryManager extends Application{
 
     public void start(Stage primaryStage) throws Exception {
         MainWindowController mWC = new MainWindowController();
@@ -28,13 +29,12 @@ public class BakeryManager {
         
         Scene scene = new Scene(root, 800, 700);
 
-        primaryStage.setTitle("ADHER Service");
+        primaryStage.setTitle("Bakery Manager");
         primaryStage.setScene(scene);
         primaryStage.show();
         
         primaryStage.setOnCloseRequest((WindowEvent we) -> {
             System.out.println("Stage is closing");
-            mWC.save();
         });
     }
 

@@ -40,160 +40,27 @@
     </rowConstraints>
     <children>
         
-        <Label fx:id="title" text="ADHER Service" GridPane.columnIndex="0" GridPane.columnSpan="10" GridPane.rowIndex="0"  GridPane.halignment="CENTER"/>
+        <Label fx:id="title" text="Bakery Manager" GridPane.columnIndex="0" GridPane.columnSpan="10" GridPane.rowIndex="0"  GridPane.halignment="CENTER"/>
         
         <fx:define>
             <ToggleGroup fx:id="option"/>  
         </fx:define>
         <VBox alignment="CENTER" GridPane.columnSpan="2" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <Label text="Registre d'appel" />
-            <RadioButton fx:id="ra" onAction="#showRegistreAppel" toggleGroup="$option" selected="true" />
+            <Label text="Liste des commandes" />
+            <RadioButton fx:id="cmd" onAction="#showCommande" toggleGroup="$option" selected="true" />
         </VBox>
-        <VBox alignment="CENTER" GridPane.columnSpan="2" GridPane.columnIndex="3" GridPane.rowIndex="1">
-            <Label text="Contrat de service" />
-            <RadioButton fx:id="cs" onAction="#showContratService" toggleGroup="$option" />
-        </VBox>
-        <VBox alignment="CENTER" GridPane.columnSpan="2" GridPane.columnIndex="5" GridPane.rowIndex="1">
-            <Label text="Liste Intervention" />
-            <RadioButton fx:id="ls" onAction="#showListeInterventions" toggleGroup="$option" />
+        <VBox alignment="CENTER" GridPane.columnSpan="2" GridPane.columnIndex="4" GridPane.rowIndex="1">
+            <Label text="Stocks" />
+            <RadioButton fx:id="stk" onAction="#showStock" toggleGroup="$option" />
         </VBox>
         <VBox alignment="CENTER" GridPane.columnSpan="2" GridPane.columnIndex="7" GridPane.rowIndex="1">
-            <Label text="Gestion des liste" />
-            <RadioButton fx:id="la" onAction="#showGestionListe" toggleGroup="$option" />
+            <Label text="Listes" />
+            <RadioButton fx:id="lst" onAction="#showListe" toggleGroup="$option" />
         </VBox>
         
         <FlowPane  GridPane.columnIndex="0" GridPane.columnSpan="10" GridPane.rowIndex="2" styleClass="bar" maxHeight="40" />
         
         <Label fx:id="subtitle" styleClass="subtitle" text="Registre d'appel" GridPane.columnIndex="0" GridPane.columnSpan="10" GridPane.rowIndex="2" GridPane.halignment="CENTER" />
-        <!-- Registre Appel -->
-        
-        <FlowPane fx:id="flowH" orientation="HORIZONTAL" GridPane.columnIndex="6" GridPane.columnSpan="2" GridPane.rowIndex="3">
-            <Label text="Heure :" />
-            <FlowPane>
-                <Spinner fx:id="hours" editable="true" prefWidth="75">
-                    <valueFactory>
-                        <SpinnerValueFactory.IntegerSpinnerValueFactory min="0" max="20" initialValue="12" amountToStepBy="1"/>
-                    </valueFactory>
-                </Spinner>
-                <Label text=":" />
-                <Spinner fx:id="minutes" editable="true" prefWidth="75">
-                    <valueFactory>
-                        <SpinnerValueFactory.IntegerSpinnerValueFactory min="0" max="60" initialValue="30" amountToStepBy="1"/>
-                    </valueFactory>
-                </Spinner>
-            </FlowPane>         
-        </FlowPane>
-        
-        <FlowPane fx:id="flowClient" orientation="HORIZONTAL" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="3" >
-            <Label text="Nom Client:" />
-            <ChoiceBox fx:id="clientA" prefWidth="125" />
-            <Button onAction="#ajouterClient" styleClass="btn" >+</Button>
-        </FlowPane>
-        
-        <FlowPane fx:id="flowTelC" orientation="HORIZONTAL" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="4">
-            <Label text="Téléphone Client:" />
-            <NumberField maxWidth="$col.prefWidth" fx:id="telCli" />
-        </FlowPane>
-        
-        <FlowPane fx:id="flowHr" orientation="HORIZONTAL" GridPane.columnIndex="6" GridPane.columnSpan="2" GridPane.rowIndex="4" GridPane.valignment="TOP" >
-            <Label text="Heure rappel :" />
-            <FlowPane>
-                <Spinner fx:id="hoursr" editable="true" prefWidth="75">
-                    <valueFactory>
-                        <SpinnerValueFactory.IntegerSpinnerValueFactory min="0" max="20" initialValue="12" amountToStepBy="1"/>
-                    </valueFactory>
-                </Spinner>
-                <Label text=":" />
-                <Spinner fx:id="minutesr" editable="true" prefWidth="75">
-                    <valueFactory>
-                        <SpinnerValueFactory.IntegerSpinnerValueFactory min="0" max="60" initialValue="30" amountToStepBy="1"/>
-                    </valueFactory>
-                </Spinner>
-            </FlowPane>         
-        </FlowPane>
-        
-        <FlowPane fx:id="flowDem" orientation="VERTICAL" GridPane.columnIndex="2" GridPane.columnSpan="6" GridPane.rowIndex="6" GridPane.rowSpan="3" styleClass="demande" >
-            <Label text="Demande :" />
-            <TextArea fx:id="demande" maxHeight="75" maxWidth="999999" />
-        </FlowPane>
-        
-        
-        <!-- Contrat de Service --> 
-        
-        <FlowPane fx:id="flowNomRais" orientation="VERTICAL" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="8" GridPane.valignment="CENTER">
-            <Label text="Nom/Raison Social:" />
-            <TextField fx:id="nom" editable="true" prefWidth="300" />
-        </FlowPane>
-        <FlowPane fx:id="flowAddr" orientation="VERTICAL" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.columnSpan="4" GridPane.rowSpan="3" GridPane.valignment="CENTER" >
-            <Label text="Numero de rue :" />
-            <TextField fx:id="numRue" editable="true"  maxWidth="75"/>
-            <Label text="Nom de la voie :" />
-            <TextField fx:id="NomVoie" editable="true" prefWidth="300" />
-            <Label text="Code Postal :" />
-            <NumberField fx:id="cdeVille" editable="true"  maxWidth="75" />
-            <Label text="Nom de la ville :" />
-            <TextField fx:id="ville" editable="true" prefWidth="300" />
-        </FlowPane>
-        <FlowPane fx:id="flowResp" orientation="VERTICAL" GridPane.columnIndex="6" GridPane.rowIndex="3" GridPane.columnSpan="9" GridPane.rowSpan="3" GridPane.valignment="CENTER">
-            <Label text="Nom du responsable :" />
-            <TextField fx:id="nomResp" editable="true" />
-            <Label text="Téléphone :" />
-            <NumberField fx:id="tel" editable="true" />
-        </FlowPane>
-        <FlowPane fx:id="flowSec" orientation="VERTICAL" GridPane.columnIndex="6" GridPane.rowIndex="5" GridPane.columnSpan="9" GridPane.rowSpan="3" GridPane.valignment="CENTER">
-            <Label text="Activite :" />
-            <ChoiceBox fx:id="actCb" prefWidth="175" />
-        </FlowPane>
-        <FlowPane fx:id="flowDateDebut" orientation="VERTICAL" GridPane.columnIndex="6" GridPane.rowIndex="6" GridPane.columnSpan="4"  GridPane.valignment="CENTER">
-            <Label text="Date Début :" />
-            <DatePicker fx:id="dateDebut" editable="true" />
-        </FlowPane>
-        
-        <!-- Liste des Interventions -->
-        <VBox fx:id="vboxDemL" GridPane.columnIndex="1" GridPane.columnSpan="8" GridPane.rowIndex="3" GridPane.rowSpan="3" alignment="CENTER">
-            <Label text="Liste des demandes à traiter"/>
-            <ListView  fx:id="demandeL" />
-            <Button onAction="#supprimerDemande" styleClass="btn" >Supprimer la demande</Button>      
-        </VBox>
-        <VBox fx:id="vboxIntC" GridPane.columnIndex="1" GridPane.columnSpan="8" GridPane.rowIndex="6" GridPane.rowSpan="3">
-            <Label text="liste des interventions en cours :"/>
-            <ListView  fx:id="interventionsList"  />
-        </VBox>
-        <Button onAction="#rmIntervention" fx:id="rmInter" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="9" maxWidth="99999" maxHeight="30" styleClass="btn" >Supprimer intervention</Button>
-        <Button onAction="#newIntervention" fx:id="nInter" GridPane.columnIndex="6" GridPane.columnSpan="3" GridPane.rowIndex="9" maxWidth="99999" maxHeight="30" styleClass="btn" >Nouvelle intervention</Button>
-        <!-- Liste des Activités -->
-        <VBox fx:id="vboxAct" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.rowSpan="3" alignment="CENTER">
-            <Label text="Activités "/>
-            <ListView  fx:id="activityList" />            
-        </VBox>
-        
-        <VBox fx:id="vboxSec" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.rowIndex="7" GridPane.rowSpan="3" alignment="CENTER">
-            <Label text="Secteurs Géographiques "/>
-            <ListView  fx:id="secGeoList" />            
-        </VBox>
-        
-        <VBox fx:id="vboxCl" GridPane.columnIndex="1" GridPane.columnSpan="5" GridPane.rowIndex="3" GridPane.rowSpan="3" alignment="CENTER">
-            <Label text="Liste des Clients"/>
-            <ListView  fx:id="clientL" />
-            <Button onAction="#supprimerClient" styleClass="btn"  >Supprimer le client</Button>      
-        </VBox>
-        
-        <VBox fx:id="vboxAl" GridPane.columnIndex="1" GridPane.columnSpan="5" GridPane.rowIndex="7" GridPane.rowSpan="3" alignment="CENTER">
-            <Label text="Liste des Adherents"/>
-            <ListView  fx:id="adherentL" />
-            <Button onAction="#supprimerAdherent" styleClass="btn" >Supprimer l'adherent</Button>            
-        </VBox>
-        
-        
-        <!-- Liste des Adherent en fin de contrat  -->
-        <VBox fx:id="vboxAFCL" GridPane.columnIndex="1" GridPane.columnSpan="8" GridPane.rowIndex="3" GridPane.rowSpan="8" alignment="CENTER">
-            <Label text="Liste des Adherent dont le contrat est fini "/>
-            <ListView  fx:id="adherentFCL" />
-            <Button onAction="#ok" styleClass="btn"  >OK</Button>    
-        </VBox>
-        
-        <Button onAction="#resetBtn" fx:id="reset" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="9" maxWidth="99999" maxHeight="30" styleClass="btn" >Reset</Button>
-        <Button onAction="#validBtn" fx:id="valid" GridPane.columnIndex="6" GridPane.columnSpan="2" GridPane.rowIndex="9" maxWidth="99999" maxHeight="30" styleClass="btn" >Validation</Button>
 
     </children>
 </GridPane>

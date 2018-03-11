@@ -29,7 +29,7 @@ public class DAO {
     private final static String INTERVENTION_FILE_NAME = "interventions.txt";
     private final static String DEMANDE_FILE_NAME = "demandes.txt";
     private DateTimeStringConverter format = new DateTimeStringConverter(Locale.FRANCE,"dd/MM/YYYY");
-    
+/*    
     public void saveClients(Groupe<Personne> gc){
         File file = new File(  CLIENT_FILE_NAME);
         ArrayList<String> gs = gc.save();
@@ -294,5 +294,6 @@ public class DAO {
         
         return l;
     }
+*/
     
 }

@@ -53,20 +53,6 @@ public class NewClientFXMLController implements Initializable {
     }
     
     public void validBtn(){
-        if(!"".equals(nomCli.getText())){
-            if(!"".equals(prenomCli.getText()))
-                if(!"".equals(telCli.getText()))
-                    if(!"".equals(libRue.getText()))
-                        if(!"".equals(villeCli.getText()))
-                            if(!"".equals(cdeVCli.getText())){
-                                 gc.addToGroupe( new Personne(nomCli.getText(),prenomCli.getText(),telCli.getText(),libRue.getText(),new SecteurGeographique(Integer.parseInt(cdeVCli.getText()), villeCli.getText())));
-                                 subtitle.setText("Client Ajouté !");
-                                 stage = (Stage) valid.getScene().getWindow();
-                                 stage.close();
-                            }
-        }else{
-           subtitle.setText("Certains champs sont vide.");
-        }
     }
     
     public void resetBtn(){
