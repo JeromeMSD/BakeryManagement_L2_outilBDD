@@ -83,7 +83,9 @@ public class MainWindowController implements Initializable {
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Commandes">
     @FXML
     public void addCmd() throws Exception{
-
+        Stage stage = new Stage();
+        Login l = new Login();
+        l.start(stage);
     }
     
     @FXML
