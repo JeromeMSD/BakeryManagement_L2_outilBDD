@@ -5,33 +5,13 @@
  */
 package bakerymanager;
 
-import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.ResourceBundle;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 
@@ -41,7 +21,6 @@ import javafx.stage.Stage;
  * @author jmddu_000
  */
 public class MainWindowController implements Initializable {
-    private DAO saveAndLoad = new DAO();
     
     @FXML
     private Label title;
@@ -103,8 +82,8 @@ public class MainWindowController implements Initializable {
     
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Commandes">
     @FXML
-    public void addCmd(){
-        
+    public void addCmd() throws Exception{
+
     }
     
     @FXML
@@ -197,7 +176,7 @@ public class MainWindowController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+        
     }    
     
 }
