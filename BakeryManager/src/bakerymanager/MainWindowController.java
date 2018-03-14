@@ -6,6 +6,7 @@
 package bakerymanager;
 
 import java.net.URL;
+import java.sql.Connection;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -45,6 +46,12 @@ public class MainWindowController implements Initializable {
     private ListView ingList;
     @FXML
     private ListView prodList;
+    
+    private final Connection connection;
+
+    MainWindowController(Connection conn) {
+        this.connection = conn;
+    }
     
     
     // <editor-fold defaultstate="collapsed" desc="Affichage composant FXML">
@@ -98,7 +105,6 @@ public class MainWindowController implements Initializable {
     }
     // </editor-fold>
     
-    
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Fournisseurs">
     @FXML
     public void addFour(){
@@ -136,8 +142,7 @@ public class MainWindowController implements Initializable {
     }
     // </editor-fold>
     
-    
-    // <editor-fold defaultstate="collapsed" desc="Fonction pour les ingredients">
+    // <editor-fold defaultstate="collapsed" desc="Fonction pour les Ingredients">
     @FXML
     public void addIng(){
         
@@ -155,10 +160,11 @@ public class MainWindowController implements Initializable {
     }
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="Fonction pour les produit">
+    // <editor-fold defaultstate="collapsed" desc="Fonction pour les Produit">
     @FXML
-    public void addProd(){
-        
+    public void addProd() throws Exception{
+        Produit p = new Produit(connection);
+        p.start(new Stage());
     }
     
     @FXML
@@ -172,6 +178,8 @@ public class MainWindowController implements Initializable {
         //DELETE FROM PRODUIT WHERE id_produit=p.getId();
     }
     // </editor-fold>
+    
+    
     
     /**
      * Initializes the controller class.

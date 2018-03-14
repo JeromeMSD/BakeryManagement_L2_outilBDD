@@ -29,7 +29,7 @@ public class BakeryManager extends Application{
         
         conn = l.getConnection();
         
-        MainWindowController mWC = new MainWindowController();
+        MainWindowController mWC = new MainWindowController(conn);
         FXMLLoader fl = new FXMLLoader(getClass().getResource("/fxml/MainWindow.fxml"));
         fl.setController(mWC);
         

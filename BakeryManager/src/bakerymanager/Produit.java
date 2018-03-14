@@ -21,7 +21,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -32,18 +31,26 @@ import javafx.stage.WindowEvent;
  *
  * @author jeromem
  */
-public class Login extends Application {
+public class Produit extends Application{
 
-    Connection c;
+    private Connection c;
+    private String operation = "... Produit";
+    private String query;
+    
+    public Produit(Connection c){
+        this.c = c;
+    }
     
     
-    public Connection getConnection() {
-        return c;
+    
+    
+    public String getQuery(){
+        return query;
     }
     
     @Override
     public void start(Stage stage) throws Exception {
-        stage.setTitle("Login");
+        stage.setTitle("Produit");
         
         
         GridPane grid = new GridPane();
@@ -53,42 +60,27 @@ public class Login extends Application {
         grid.setPadding(new Insets(25, 25, 25, 25));
 
         
-        Text scenetitle = new Text("Welcome");
+        Text scenetitle = new Text(operation);
         scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
         grid.add(scenetitle, 0, 0, 2, 1);
         scenetitle.setId("welcome-text");
         
         
-        Label userName = new Label("User Name:");
-        grid.add(userName, 0, 2);
+        Label prodName = new Label("Designation :");
+        grid.add(prodName, 0, 2);
+
+        TextField prodTextField = new TextField();
+        grid.add(prodTextField, 1, 2,3, 1);
+        
+        Label prix = new Label("Prix (en €):");
+        grid.add(prix, 0, 3);
 
         TextField userTextField = new TextField();
-        grid.add(userTextField, 1, 2);
+        grid.add(userTextField, 1, 3,3, 1);
 
         
-        Label pw = new Label("Password:");
-        grid.add(pw, 0, 3);
-        
-        Button btn = new Button("Sign in");
-        
-        PasswordField pwBox = new PasswordField();
-        grid.add(pwBox, 1, 3);
-        
-        pwBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent t) {
-                if(t.getCode().equals(KeyCode.ENTER))
-                    btn.fire();
-            }
-        });
-        
-        userTextField.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent t) {
-                if(t.getCode().equals(KeyCode.ENTER))
-                    pwBox.requestFocus();
-            }
-        });
+        Button cancelBtn = new Button("Cancel");        
+        Button validBtn = new Button("Apply");
         
         
         final Text actiontarget = new Text();
@@ -97,39 +89,32 @@ public class Login extends Application {
 
         HBox hbBtn = new HBox(10);
         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
-        hbBtn.getChildren().add(btn);
-        grid.add(hbBtn, 1, 4);
+        hbBtn.getChildren().add(validBtn);
+        grid.add(hbBtn, 3, 4);
+        grid.add(cancelBtn, 0, 4);
 
-        btn.setOnAction(new EventHandler<ActionEvent>() {
+        
+        validBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
                 
-                try {
-                    c = new Connector(userTextField.getText(),pwBox.getText()).getConnection();
-                } catch (SQLException ex) {
-                    
-                }
                 if (c == null){
                     actiontarget.setText("Access denied");
                     System.err.println("Access denied !");
                 }else{
-                    actiontarget.setFill(Color.GREEN);
-                    actiontarget.setText("Access granted !");
-                    System.out.println("Access granted !");
+                    System.out.println("Sql command executed !");
                     stage.close();
                 }
             }
         });
 
         
-        Scene scene = new Scene(grid, 300, 200);
+        Scene scene = new Scene(grid, 300, 250);
         scene.getStylesheets().add(Login.class.getResource("/css/Login.css").toExternalForm());
         stage.setScene(scene);
         
-        stage.setOnCloseRequest((WindowEvent we) -> {
-            System.exit(0);
-        });
-        
         stage.showAndWait();
+
     }
+
 }
