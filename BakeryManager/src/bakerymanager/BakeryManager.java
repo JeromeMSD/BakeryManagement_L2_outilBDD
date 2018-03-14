@@ -5,6 +5,7 @@
  */
 package bakerymanager;
 
+import java.sql.Connection;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.fxml.FXMLLoader;
@@ -19,9 +20,16 @@ import javafx.stage.WindowEvent;
  */
 public class BakeryManager extends Application{
 
+    private static Connection conn;
+    
     public void start(Stage primaryStage) throws Exception {
+        
+        Login l = new Login();
+        l.start(new Stage());
+        
+        conn = l.getConnection();
+        
         MainWindowController mWC = new MainWindowController();
- 
         FXMLLoader fl = new FXMLLoader(getClass().getResource("/fxml/MainWindow.fxml"));
         fl.setController(mWC);
         

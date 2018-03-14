@@ -5,6 +5,8 @@
  */
 package bakerymanager;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -22,6 +24,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  *
@@ -29,6 +32,13 @@ import javafx.stage.Stage;
  */
 public class Login extends Application {
 
+    Connection c;
+    
+    
+    public Connection getConnection() {
+        return c;
+    }
+    
     @Override
     public void start(Stage stage) throws Exception {
         stage.setTitle("Login");
@@ -44,7 +54,9 @@ public class Login extends Application {
         Text scenetitle = new Text("Welcome");
         scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
         grid.add(scenetitle, 0, 0, 2, 1);
-
+        scenetitle.setId("welcome-text");
+        
+        
         Label userName = new Label("User Name:");
         grid.add(userName, 0, 2);
 
@@ -58,7 +70,8 @@ public class Login extends Application {
         grid.add(pwBox, 1, 3);
         
         final Text actiontarget = new Text();
-        grid.add(actiontarget, 1, 6);
+        grid.add(actiontarget, 0, 4,3,1);
+        actiontarget.setId("actiontarget");
 
         Button btn = new Button("Sign in");
         HBox hbBtn = new HBox(10);
@@ -69,16 +82,33 @@ public class Login extends Application {
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                actiontarget.setFill(Color.FIREBRICK);
-                actiontarget.setText("Connection failed");
+                
+                try {
+                    c = new Connector(userTextField.getText(),pwBox.getText()).getConnection();
+                } catch (SQLException ex) {
+                    
+                }
+                if (c == null){
+                    actiontarget.setText("Access denied");
+                    System.err.println("Access denied !");
+                }else{
+                    actiontarget.setFill(Color.GREEN);
+                    actiontarget.setText("Access granted !");
+                    System.out.println("Access granted !");
+                    stage.close();
+                }
             }
         });
 
         
         Scene scene = new Scene(grid, 300, 200);
+        scene.getStylesheets().add(Login.class.getResource("/css/Login.css").toExternalForm());
         stage.setScene(scene);
         
-        stage.show();
+        stage.setOnCloseRequest((WindowEvent we) -> {
+            System.exit(0);
+        });
+        
+        stage.showAndWait();
     }
-    
 }
