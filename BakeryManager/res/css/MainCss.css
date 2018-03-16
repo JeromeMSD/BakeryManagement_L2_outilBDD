@@ -19,6 +19,7 @@ and open the template in the editor.
    -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.7) , 6, 0.0 , 0 , 2 );
 }
 
+
 .label {
     -fx-font-size: 14px;
     -fx-font-weight: bold;
@@ -48,4 +49,8 @@ and open the template in the editor.
   -fx-background: #3cb0fd;
   -fx-background-color: linear-gradient(to bottom, #3cb0fd, #3498db);
   -fx-text-decoration: none;
+}
+
+.errborder{
+    -fx-border: solid 3px firebrick;
 }

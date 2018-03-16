@@ -7,6 +7,8 @@ package bakerymanager;
 
 import java.net.URL;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -20,8 +22,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -102,9 +106,7 @@ public class MainWindowController implements Initializable {
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Commandes">
     @FXML
     public void addCmd() throws Exception{
-        Stage stage = new Stage();
-        Login l = new Login();
-        l.start(stage);
+
     }
     
     @FXML
@@ -120,7 +122,127 @@ public class MainWindowController implements Initializable {
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Fournisseurs">
     @FXML
     public void addFour(){
+        Stage stage = new Stage();
+        List<TextField> list = new ArrayList<>();
         
+        stage.setTitle("Fournisseur");
+        
+        
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(0, 0, 0, 0));
+
+        
+        Text scenetitle = new Text("Nouveau fournisseur");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        grid.add(scenetitle, 0, 0, 4, 1);
+        scenetitle.setId("title");
+        
+        
+        Label name = new Label("Nom :");
+        grid.add(name, 0, 2);
+
+        TextField nameTextField = new TextField();
+        grid.add(nameTextField, 1, 2,3, 1);
+        list.add(nameTextField);
+        
+        Label tel = new Label("Tel :");
+        grid.add(tel, 0, 3);
+
+        TextField telTextField = new TextField();
+        grid.add(telTextField, 1, 3,3, 1);
+        list.add(telTextField);
+        
+        Label adresseTitle = new Label("Adresse");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
+        HBox hbAdr = new HBox(10);
+        hbAdr.setAlignment(Pos.CENTER);
+        hbAdr.getChildren().add(adresseTitle);
+        grid.add(hbAdr, 0, 5, 4, 1);
+        
+        Label numAdrL = new Label("Numero :");
+        grid.add(numAdrL, 0, 6);
+
+        TextField numAdr = new TextField();
+        grid.add(numAdr, 1, 6);
+        list.add(numAdr);
+        
+        Label libAdrL = new Label("Rue :");
+        grid.add(libAdrL, 0, 7);
+
+        TextField libAdr = new TextField();
+        grid.add(libAdr, 1, 7,3, 1);
+        list.add(libAdr);
+        
+        Label cdeAdrL = new Label("Code Postal :");
+        grid.add(cdeAdrL, 0, 8);
+
+        TextField cdeAdr = new TextField();
+        grid.add(cdeAdr, 1, 8);
+        list.add(cdeAdr);
+        
+        Label villeAdrL = new Label("Ville :");
+        grid.add(villeAdrL, 0, 9);
+
+        TextField villeAdr = new TextField();
+        grid.add(villeAdr, 1, 9,3,1);
+        list.add(villeAdr);
+       
+        
+        
+        Button cancelBtn = new Button("Annuler");        
+        Button validBtn = new Button("Valider");
+        
+        
+        final Text actiontarget = new Text();
+        grid.add(actiontarget, 1, 11,2,1);
+        actiontarget.setId("actiontarget");
+
+        HBox hbBtn = new HBox(10);
+        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hbBtn.getChildren().add(validBtn);
+        grid.add(hbBtn, 3, 11);
+        grid.add(cancelBtn, 0, 11);
+
+        
+        validBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                int cpt = 0;
+                
+                for (TextField t : list)
+                    if(t.getText().isEmpty()){
+                        cpt++;
+                        t.setStyle("-fx-border-color: firebrick;");
+                    }else{
+                        t.setStyle("-fx-border-color: white;");
+                    }
+                    
+                if(cpt == 0){
+                    //fin + query
+                }
+                
+                actiontarget.setText("Certain champs sont vide");
+                actiontarget.setFill(Color.FIREBRICK);
+                
+            }
+        });
+
+        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                stage.close();
+            }
+        });
+        
+        
+        Scene scene = new Scene(grid, 400, 400);
+        scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
+        stage.setScene(scene);
+        
+        stage.showAndWait();
     }
     
     @FXML
@@ -140,65 +262,125 @@ public class MainWindowController implements Initializable {
     @FXML
     public void addClient(){
         Stage stage = new Stage();
-        stage.setTitle("Produit");
+        List<TextField> list = new ArrayList<>();
+        
+        stage.setTitle("Client");
         
         
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
+        grid.setPadding(new Insets(0, 0, 0, 0));
 
         
         Text scenetitle = new Text("Nouveau client");
         scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        grid.add(scenetitle, 0, 0, 2, 1);
-        scenetitle.setId("welcome-text");
+        grid.add(scenetitle, 0, 0, 4, 1);
+        scenetitle.setId("title");
         
         
-        Label prodName = new Label("Designation :");
-        grid.add(prodName, 0, 2);
+        Label name = new Label("Nom :");
+        grid.add(name, 0, 2);
 
-        TextField prodTextField = new TextField();
-        grid.add(prodTextField, 1, 2,3, 1);
+        TextField nameTextField = new TextField();
+        grid.add(nameTextField, 1, 2,3, 1);
+        list.add(nameTextField);
         
-        Label prix = new Label("Prix (en €):");
-        grid.add(prix, 0, 3);
+        Label tel = new Label("Tel :");
+        grid.add(tel, 0, 3);
 
-        TextField userTextField = new TextField();
-        grid.add(userTextField, 1, 3,3, 1);
-
+        TextField telTextField = new TextField();
+        grid.add(telTextField, 1, 3,3, 1);
+        list.add(telTextField);
         
-        Button cancelBtn = new Button("Cancel");        
-        Button validBtn = new Button("Apply");
+        Label adresseTitle = new Label("Adresse");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
+        HBox hbAdr = new HBox(10);
+        hbAdr.setAlignment(Pos.CENTER);
+        hbAdr.getChildren().add(adresseTitle);
+        grid.add(hbAdr, 0, 5, 4, 1);
+        
+        Label numAdrL = new Label("Numero :");
+        grid.add(numAdrL, 0, 6);
+
+        TextField numAdr = new TextField();
+        grid.add(numAdr, 1, 6);
+        list.add(numAdr);
+        
+        Label libAdrL = new Label("Rue :");
+        grid.add(libAdrL, 0, 7);
+
+        TextField libAdr = new TextField();
+        grid.add(libAdr, 1, 7,3, 1);
+        list.add(libAdr);
+        
+        Label cdeAdrL = new Label("Code Postal :");
+        grid.add(cdeAdrL, 0, 8);
+
+        TextField cdeAdr = new TextField();
+        grid.add(cdeAdr, 1, 8);
+        list.add(cdeAdr);
+        
+        Label villeAdrL = new Label("Ville :");
+        grid.add(villeAdrL, 0, 9);
+
+        TextField villeAdr = new TextField();
+        grid.add(villeAdr, 1, 9,3,1);
+        list.add(villeAdr);
+       
+        
+        
+        Button cancelBtn = new Button("Annuler");        
+        Button validBtn = new Button("Valider");
         
         
         final Text actiontarget = new Text();
-        grid.add(actiontarget, 0, 4,3,1);
+        grid.add(actiontarget, 1, 11,2,1);
         actiontarget.setId("actiontarget");
 
         HBox hbBtn = new HBox(10);
         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hbBtn.getChildren().add(validBtn);
-        grid.add(hbBtn, 3, 4);
-        grid.add(cancelBtn, 0, 4);
+        grid.add(hbBtn, 3, 11);
+        grid.add(cancelBtn, 0, 11);
 
         
         validBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                System.err.println("coucou");
+                int cpt = 0;
+                
+                for (TextField t : list)
+                    if(t.getText().isEmpty()){
+                        cpt++;
+                        t.setStyle("-fx-border-color: firebrick;");
+                    }else{
+                        t.setStyle("-fx-border-color: white;");
+                    }
+                    
+                if(cpt == 0){
+                    //fin + query
+                }
+                
+                actiontarget.setText("Certain champs sont vide");
+                actiontarget.setFill(Color.FIREBRICK);
+                
             }
         });
-
         
-        Scene scene = new Scene(grid, 300, 250);
-        scene.getStylesheets().add(Login.class.getResource("/css/Login.css").toExternalForm());
+        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                stage.close();
+            }
+        });
+        
+        Scene scene = new Scene(grid, 400, 400);
+        scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
         stage.setScene(scene);
         
         stage.showAndWait();
-
-    
     }
     
     @FXML

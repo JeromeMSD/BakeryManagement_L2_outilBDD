@@ -43,7 +43,7 @@ public class Login extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        stage.setTitle("Login");
+        stage.setTitle("Connection");
         
         
         GridPane grid = new GridPane();
@@ -53,13 +53,13 @@ public class Login extends Application {
         grid.setPadding(new Insets(25, 25, 25, 25));
 
         
-        Text scenetitle = new Text("Welcome");
+        Text scenetitle = new Text("Bienvenue");
         scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
         grid.add(scenetitle, 0, 0, 2, 1);
         scenetitle.setId("welcome-text");
         
         
-        Label userName = new Label("User Name:");
+        Label userName = new Label("Username:");
         grid.add(userName, 0, 2);
 
         TextField userTextField = new TextField();
@@ -69,7 +69,7 @@ public class Login extends Application {
         Label pw = new Label("Password:");
         grid.add(pw, 0, 3);
         
-        Button btn = new Button("Sign in");
+        Button btn = new Button("Log in");
         
         PasswordField pwBox = new PasswordField();
         grid.add(pwBox, 1, 3);
