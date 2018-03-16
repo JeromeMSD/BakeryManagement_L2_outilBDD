@@ -8,11 +8,23 @@ package bakerymanager;
 import java.net.URL;
 import java.sql.Connection;
 import java.util.ResourceBundle;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 
@@ -127,7 +139,66 @@ public class MainWindowController implements Initializable {
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les CLient">
     @FXML
     public void addClient(){
+        Stage stage = new Stage();
+        stage.setTitle("Produit");
         
+        
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(25, 25, 25, 25));
+
+        
+        Text scenetitle = new Text("Nouveau client");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        grid.add(scenetitle, 0, 0, 2, 1);
+        scenetitle.setId("welcome-text");
+        
+        
+        Label prodName = new Label("Designation :");
+        grid.add(prodName, 0, 2);
+
+        TextField prodTextField = new TextField();
+        grid.add(prodTextField, 1, 2,3, 1);
+        
+        Label prix = new Label("Prix (en €):");
+        grid.add(prix, 0, 3);
+
+        TextField userTextField = new TextField();
+        grid.add(userTextField, 1, 3,3, 1);
+
+        
+        Button cancelBtn = new Button("Cancel");        
+        Button validBtn = new Button("Apply");
+        
+        
+        final Text actiontarget = new Text();
+        grid.add(actiontarget, 0, 4,3,1);
+        actiontarget.setId("actiontarget");
+
+        HBox hbBtn = new HBox(10);
+        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hbBtn.getChildren().add(validBtn);
+        grid.add(hbBtn, 3, 4);
+        grid.add(cancelBtn, 0, 4);
+
+        
+        validBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                System.err.println("coucou");
+            }
+        });
+
+        
+        Scene scene = new Scene(grid, 300, 250);
+        scene.getStylesheets().add(Login.class.getResource("/css/Login.css").toExternalForm());
+        stage.setScene(scene);
+        
+        stage.showAndWait();
+
+    
     }
     
     @FXML
@@ -163,8 +234,7 @@ public class MainWindowController implements Initializable {
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Produit">
     @FXML
     public void addProd() throws Exception{
-        Produit p = new Produit(connection);
-        p.start(new Stage());
+    
     }
     
     @FXML
