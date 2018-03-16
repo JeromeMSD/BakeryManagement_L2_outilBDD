@@ -5,18 +5,21 @@
  */
 package bakerymanager;
 
+import java.util.HashMap;
+
 /**
  *
  * @author romain
  */
-public class Fournisseur{
-    private int idFournniseur;
-    private String nomFournisseur;
-    private int telFournisseur;
+public class Fournisseur extends Personne{
+
     
-    public Fournisseur(String nomFournisseur, int telFournisseur){
-        this.nomFournisseur =  nomFournisseur;
-        this.telFournisseur = telFournisseur;
+    public Fournisseur(String nomPersonne, int telPersonne, Adresse adresse){
+        super(nomPersonne, telPersonne, adresse);
+    }
+          
+    public void Livrer (HashMap <Ingredient,Integer> livraison){
+        // Association ingrédient / Quantité
     }
 }
 
