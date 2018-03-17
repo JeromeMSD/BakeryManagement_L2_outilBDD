@@ -1,0 +1,65 @@
+CREATE TABLE ADRESSE (
+   num_rue  int(11) NOT NULL,
+   lib_rue  varchar(50) NOT NULL,
+   cde_postal  int(11) NOT NULL,
+   ville  varchar(50) NOT NULL,
+   PRIMARY KEY(num_rue,lib_rue,cde_postal,ville)
+);
+
+
+
+CREATE TABLE COMMANDE (
+   id_commande  int(5) NOT NULL PRIMARY KEY,
+   date_cmd  date,
+   prix_total  float
+);
+
+CREATE TABLE PERSONNE (
+   id_personne  int(5) NOT NULL PRIMARY KEY,
+   nom_personne  varchar(50),
+   tel_personne  int(11)  
+);
+
+CREATE TABLE PRODUIT (
+   id_produit  int(5) NOT NULL PRIMARY KEY,
+   nom_prod  varchar(50),
+   prix_prod  float,
+   qte_prod  int(11)  
+);
+
+CREATE TABLE FOURNISSEUR (
+   id_fournisseur  int(5) NOT NULL PRIMARY KEY,
+   nom_fournisseur  varchar(50),
+   tel_fournisseur  int(11)  
+);
+
+CREATE TABLE INGREDIENT (
+   id_ingredient  int(5) NOT NULL PRIMARY KEY,
+   nom_ingredient  varchar(50),
+   qte_disponible  int(11)  
+);
+
+
+
+CREATE TABLE CONSTITUER (
+   id_commande  int(5) NOT NULL,
+   id_produit  int(5) NOT NULL,
+   qte_constituer  int(11),
+   prix_groupe  float,
+   PRIMARY KEY(id_commande,id_produit)
+);
+
+CREATE TABLE FOURNIR (
+   id_fournisseur  int(5) NOT NULL,
+   id_ingredient  int(5) NOT NULL,
+   qte_fourni  int(11),
+   PRIMARY KEY(id_fournisseur,id_ingredient)
+);
+
+CREATE TABLE NECESSITER (
+   id_ingredient  int(5) NOT NULL,
+   id_produit  int(5) NOT NULL,
+   qte_necessaire  int(11),
+   PRIMARY KEY(id_ingredient,id_produit)
+);
+

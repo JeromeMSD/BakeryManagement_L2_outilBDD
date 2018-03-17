@@ -7,9 +7,17 @@ package bakerymanager;
 
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableArray;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -22,7 +30,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -67,6 +74,23 @@ public class MainWindowController implements Initializable {
 
     MainWindowController(Connection conn) {
         this.connection = conn;
+            
+        //Pour faire marcher les id incremental
+        Statement s = null;
+        try {
+            s = connection.createStatement();
+            s.executeUpdate("DELETE FROM ADRESSE;");
+            s.executeUpdate("DELETE FROM FOURNISSEUR;");
+            s.executeUpdate("DELETE FROM PERSONNE;");
+        } catch (SQLException ex) {
+            Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            try {
+                s.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
     
     
@@ -141,19 +165,19 @@ public class MainWindowController implements Initializable {
         scenetitle.setId("title");
         
         
-        Label name = new Label("Nom :");
-        grid.add(name, 0, 2);
+        Label nameL = new Label("Nom :");
+        grid.add(nameL, 0, 2);
 
-        TextField nameTextField = new TextField();
-        grid.add(nameTextField, 1, 2,3, 1);
-        list.add(nameTextField);
+        TextField name = new TextField();
+        grid.add(name, 1, 2,3, 1);
+        list.add(name);
         
-        Label tel = new Label("Tel :");
-        grid.add(tel, 0, 3);
+        Label telL = new Label("Tel :");
+        grid.add(telL, 0, 3);
 
-        TextField telTextField = new TextField();
-        grid.add(telTextField, 1, 3,3, 1);
-        list.add(telTextField);
+        TextField tel = new NumberField();
+        grid.add(tel, 1, 3,3, 1);
+        list.add(tel);
         
         Label adresseTitle = new Label("Adresse");
         scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
@@ -165,7 +189,7 @@ public class MainWindowController implements Initializable {
         Label numAdrL = new Label("Numero :");
         grid.add(numAdrL, 0, 6);
 
-        TextField numAdr = new TextField();
+        TextField numAdr = new NumberField();
         grid.add(numAdr, 1, 6);
         list.add(numAdr);
         
@@ -179,7 +203,7 @@ public class MainWindowController implements Initializable {
         Label cdeAdrL = new Label("Code Postal :");
         grid.add(cdeAdrL, 0, 8);
 
-        TextField cdeAdr = new TextField();
+        TextField cdeAdr = new NumberField();
         grid.add(cdeAdr, 1, 8);
         list.add(cdeAdr);
         
@@ -211,6 +235,8 @@ public class MainWindowController implements Initializable {
             @Override
             public void handle(ActionEvent e) {
                 int cpt = 0;
+                Statement stmt = null; 
+                
                 
                 for (TextField t : list)
                     if(t.getText().isEmpty()){
@@ -221,12 +247,32 @@ public class MainWindowController implements Initializable {
                     }
                     
                 if(cpt == 0){
-                    //fin + query
+                    try {
+                        Adresse adr = new Adresse(Integer.parseInt(numAdr.getText()), libAdr.getText(), Integer.parseInt(cdeAdr.getText()), villeAdr.getText());
+                        Fournisseur fournisseur = new Fournisseur(name.getText(), Integer.parseInt(tel.getText()), adr);
+                        
+                        stmt = connection.createStatement();
+                        stmt.executeUpdate(adr.getCreationQuery());
+                        stmt.executeUpdate(fournisseur.getCreationQuery());
+                        stage.close();
+                        
+                    } catch (SQLException ex) {
+                        System.err.println(ex.getMessage());
+                        actiontarget.setText("Echec à l'insertion SQL");
+                        actiontarget.setFill(Color.FIREBRICK);
+                    }finally {
+                        if (stmt != null) { 
+                            try {
+                                stmt.close();
+                            } catch (SQLException ex) {
+                                System.err.println(ex.getMessage());
+                            }
+                        }
+                    }
+                }else{
+                    actiontarget.setText("Certain champs sont vide");
+                    actiontarget.setFill(Color.FIREBRICK);
                 }
-                
-                actiontarget.setText("Certain champs sont vide");
-                actiontarget.setFill(Color.FIREBRICK);
-                
             }
         });
 
@@ -243,6 +289,7 @@ public class MainWindowController implements Initializable {
         stage.setScene(scene);
         
         stage.showAndWait();
+        refreshList();
     }
     
     @FXML
@@ -433,6 +480,67 @@ public class MainWindowController implements Initializable {
     
     
     
+    public ObservableList<String> selectAllPersonne(){
+        
+        ObservableList<String> lPersonne = FXCollections.observableArrayList();
+        
+        String query = "SELECT id_personne, nom_personne, tel_personne FROM PERSONNE";
+        
+        try (Statement stmt = connection.createStatement()) {
+
+            ResultSet rs = stmt.executeQuery(query);
+
+            while (rs.next()) {
+                Personne p  = new Personne(rs.getInt("id_personne"),rs.getString("nom_personne"), rs.getInt("tel_personne"));
+                lPersonne.add(p.toString());
+            }
+            
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        
+        return lPersonne;
+    }  
+    public ObservableList<String> selectAllFournisseur(){
+        
+        ObservableList<String> l = FXCollections.observableArrayList();
+        
+        String query = "SELECT id_fournisseur, nom_fournisseur, tel_fournisseur FROM FOURNISSEUR";
+        
+        try (Statement stmt = connection.createStatement()) {
+
+            ResultSet rs = stmt.executeQuery(query);
+
+            while (rs.next()) {
+                Fournisseur f  = new Fournisseur(rs.getInt("id_fournisseur"),rs.getString("nom_fournisseur"), rs.getInt("tel_fournisseur"));
+                l.add(f.toString());
+            }
+            
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        
+        return l;
+    }  
+    
+    
+    public void refreshList(){
+        ObservableList<String> lCommande = FXCollections.observableArrayList();
+        ObservableList<String> lPersonne = selectAllPersonne();
+        ObservableList<String> lFournisseur = selectAllFournisseur();
+        ObservableList<String> lIngredient = FXCollections.observableArrayList();
+        ObservableList<String> lProduit = FXCollections.observableArrayList();
+        
+        cmdList.setItems(lCommande);
+        fourList.setItems(lFournisseur);
+        clientList.setItems(lPersonne);
+        ingList.setItems(lIngredient);
+        prodList.setItems(lProduit);
+        
+    }
+    
+    
+    
     /**
      * Initializes the controller class.
      */
@@ -440,5 +548,6 @@ public class MainWindowController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         
     }    
+    
     
 }

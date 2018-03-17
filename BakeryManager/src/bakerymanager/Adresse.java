@@ -39,6 +39,10 @@ public class Adresse {
     public String toString () {
         return numRue+", "+libRue+", "+codePostal+" "+ville;
     }
+
+    String getCreationQuery() {
+        return "INSERT INTO ADRESSE VALUES ("+this.numRue+",'"+this.libRue+"',"+this.codePostal+",'"+this.ville+"');";
+    }
     
     
 }

@@ -51,7 +51,7 @@ public class Connector {
             conn = DriverManager.getConnection(
                        "jdbc:" + this.dbms + "://" +
                        this.serverName +
-                       ":" + this.port + "/",
+                       ":" + this.port + "/"+dbName,
                        connectionProps);
         } else if (this.dbms.equals("derby")) {
             conn = DriverManager.getConnection(

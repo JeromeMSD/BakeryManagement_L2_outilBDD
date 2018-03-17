@@ -12,11 +12,11 @@ import java.util.HashMap;
  * @author Nicolas
  */
 public class Personne{
-    private int idPersonne;
+    private int idPersonne; //On ne peux pas utiliser ca reviens à zero apres chaque redémarage de l'app
     private static int compteurPers = 0;
     private String nomPersonne;
     private int telPersonne;
-    private Adresse adresse;
+    protected Adresse adresse;
     
     public Personne (String nomPersonne, int telPersonne, Adresse adresse){
         compteurPers ++; // Nb de personnes instanciées
@@ -24,6 +24,25 @@ public class Personne{
         this.nomPersonne = nomPersonne;
         this.telPersonne = telPersonne;
         this.adresse = adresse;
+    }
+
+    public Personne(int id, String nom, int tel) {
+        this.idPersonne = id;
+        this.nomPersonne = nom;
+        this.telPersonne = tel;
+        this.adresse = new Adresse("rue uneRue", "ville");
+    }
+    
+    public String getNomPersonne(){
+        return this.nomPersonne;
+    }
+    
+    public int getTelPersonne(){
+        return this.telPersonne;
+    }
+    
+    public int getId(){
+        return idPersonne;
     }
     
     // Prend une liste de produit / Quantite
@@ -40,5 +59,9 @@ public class Personne{
     @Override
     public String toString () {
         return idPersonne+": "+nomPersonne+"->"+telPersonne+" Adresse: "+adresse.toString();
+    }
+    
+    public String getCreationQuery() {
+        return "INSERT INTO PERSONNE VALUES("+this.getId()+",'"+this.getNomPersonne()+"',"+this.getTelPersonne()+");";
     }
 }

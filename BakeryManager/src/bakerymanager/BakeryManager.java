@@ -6,6 +6,9 @@
 package bakerymanager;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.fxml.FXMLLoader;
@@ -42,6 +45,11 @@ public class BakeryManager extends Application{
         primaryStage.show();
         
         primaryStage.setOnCloseRequest((WindowEvent we) -> {
+            try {
+                conn.close();
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }
             System.out.println("Stage is closing");
         });
     }
