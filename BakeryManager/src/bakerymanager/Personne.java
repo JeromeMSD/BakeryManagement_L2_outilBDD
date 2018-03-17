@@ -32,8 +32,13 @@ public class Personne{
         return 0;
     }
     
-    public void Commander (HashMap <Resultat, Integer> commande){
+    public void Commander (HashMap <Produit, Integer> commande){
         /*Date actuel + Contenu de la commande(produit/qte)*/
         //Commande newCom = New Commande ();//Crée une commande
+    }
+    
+    @Override
+    public String toString () {
+        return idPersonne+": "+nomPersonne+"->"+telPersonne+" Adresse: "+adresse.toString();
     }
 }

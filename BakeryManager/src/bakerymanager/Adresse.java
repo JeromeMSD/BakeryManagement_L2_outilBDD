@@ -35,6 +35,10 @@ public class Adresse {
         this(1,libRue,0,ville);
     }
     
+    @Override
+    public String toString () {
+        return numRue+", "+libRue+", "+codePostal+" "+ville;
+    }
     
     
 }

@@ -17,15 +17,20 @@ public class Commande {
     private int idCommande;
     private Date date;
     private float prixTotal=0;
-    private HashMap<Resultat,Integer> commande;
+    private HashMap<Produit,Integer> commande;
     
-    public Commande(Date d,HashMap<Resultat, Integer> commande){
+    public Commande(Date d,HashMap<Produit, Integer> commande){
         compteurCom ++;
         this.idCommande = compteurCom;
         this.date=d;
         this.commande=commande;
         /* Doit parcourir la commande(liste d'ingredient + prix) pour en calculer son prix total pour l'instancier */
         
+    }
+    
+    @Override
+    public String toString () {
+        return idCommande+": "+date+"->"+prixTotal;
     }
     
 }
