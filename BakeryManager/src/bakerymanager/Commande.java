@@ -13,7 +13,7 @@ import java.util.HashMap;
  * @author Nicolas
  */
 public class Commande {
-    private static int compteurCom = 0;
+    public static int compteurCom = 0;
     private int idCommande;
     private Date date;
     private float prixTotal=0;

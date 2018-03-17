@@ -17,7 +17,15 @@ CREATE TABLE COMMANDE (
 CREATE TABLE PERSONNE (
    id_personne  int(5) NOT NULL PRIMARY KEY,
    nom_personne  varchar(50),
-   tel_personne  int(11)  
+   tel_personne  int(11),
+   num_rue  int(11) NOT NULL,
+   lib_rue  varchar(50) NOT NULL,
+   cde_postal  int(11) NOT NULL,
+   ville  varchar(50) NOT NULL,
+   FOREIGN KEY (num_rue) REFERENCES ADRESSE(num_rue),
+   FOREIGN KEY (lib_rue) REFERENCES ADRESSE(lib_rue),
+   FOREIGN KEY (cde_postal) REFERENCES ADRESSE(cde_postal),
+   FOREIGN KEY (ville) REFERENCES ADRESSE(ville)
 );
 
 CREATE TABLE PRODUIT (
@@ -30,7 +38,15 @@ CREATE TABLE PRODUIT (
 CREATE TABLE FOURNISSEUR (
    id_fournisseur  int(5) NOT NULL PRIMARY KEY,
    nom_fournisseur  varchar(50),
-   tel_fournisseur  int(11)  
+   tel_fournisseur  int(11),
+   num_rue  int(11) NOT NULL,
+   lib_rue  varchar(50) NOT NULL,
+   cde_postal  int(11) NOT NULL,
+   ville  varchar(50) NOT NULL,
+   FOREIGN KEY (num_rue) REFERENCES ADRESSE(num_rue),
+   FOREIGN KEY (lib_rue) REFERENCES ADRESSE(lib_rue),
+   FOREIGN KEY (cde_postal) REFERENCES ADRESSE(cde_postal),
+   FOREIGN KEY (ville) REFERENCES ADRESSE(ville)  
 );
 
 CREATE TABLE INGREDIENT (

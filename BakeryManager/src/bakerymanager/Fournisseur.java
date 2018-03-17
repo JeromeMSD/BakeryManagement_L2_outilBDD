@@ -18,8 +18,8 @@ public class Fournisseur extends Personne{
         super(nomPersonne, telPersonne, adresse);
     }
     
-    public Fournisseur(int idPersonne, String nomPersonne, int telPersonne){
-        super(idPersonne, nomPersonne, telPersonne);
+    public Fournisseur(int idPersonne, String nomPersonne, int telPersonne,Adresse adr){
+        super(idPersonne, nomPersonne, telPersonne, adr);
     }
           
     public void Livrer (HashMap <Ingredient,Integer> livraison){
@@ -28,7 +28,7 @@ public class Fournisseur extends Personne{
     
     @Override
     public String getCreationQuery() {
-        return "INSERT INTO FOURNISSEUR VALUES("+this.getId()+",'"+this.getNomPersonne()+"',"+this.getTelPersonne()+");";
+        return "INSERT INTO FOURNISSEUR VALUES("+this.getId()+",'"+this.getNomPersonne()+"',"+this.getTelPersonne()+","+this.adresse.getReferenceQuery()+");";
     }
 }
 

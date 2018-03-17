@@ -13,7 +13,7 @@ import java.util.HashMap;
  */
 public class Personne{
     private int idPersonne; //On ne peux pas utiliser ca reviens à zero apres chaque redémarage de l'app
-    private static int compteurPers = 0;
+    public static int compteurPers = 0;
     private String nomPersonne;
     private int telPersonne;
     protected Adresse adresse;
@@ -26,11 +26,11 @@ public class Personne{
         this.adresse = adresse;
     }
 
-    public Personne(int id, String nom, int tel) {
+    public Personne(int id, String nom, int tel,Adresse adr) {
         this.idPersonne = id;
         this.nomPersonne = nom;
         this.telPersonne = tel;
-        this.adresse = new Adresse("rue uneRue", "ville");
+        this.adresse = adr;
     }
     
     public String getNomPersonne(){

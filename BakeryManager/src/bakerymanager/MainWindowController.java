@@ -74,7 +74,9 @@ public class MainWindowController implements Initializable {
 
     MainWindowController(Connection conn) {
         this.connection = conn;
-            
+        
+        initIds();
+        /*
         //Pour faire marcher les id incremental
         Statement s = null;
         try {
@@ -91,6 +93,81 @@ public class MainWindowController implements Initializable {
                 Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        */
+        refreshList();
+    }
+    
+    //DANGER - Supprimer tt les tuples de toutes les tables 
+    // A FINIR - ASSOCIER A UN BOUTON ROUGE AVEC CONFIRMATION
+    public void hardResetTable(){
+        Statement s = null;
+        try {
+            s = connection.createStatement();
+            s.executeUpdate("DELETE FROM FOURNIR;");
+            s.executeUpdate("DELETE FROM NECESSITE;");
+            s.executeUpdate("DELETE FROM CONSTITUER;");
+            s.executeUpdate("DELETE FROM ADRESSE;");
+            
+            s.executeUpdate("DELETE FROM FOURNISSEUR;");
+            s.executeUpdate("DELETE FROM PERSONNE;");
+            s.executeUpdate("DELETE FROM PRODUIT;");
+            s.executeUpdate("DELETE FROM INGREDIENT;");
+            s.executeUpdate("DELETE FROM COMMANDE;");
+        } catch (SQLException ex) {
+            Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            try {
+                s.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    public void initIds(){
+        try {
+            // RECUPERER Le nombre maximum des tuples et l'ajouter l'ajout dans chacune des classe
+            Statement s = connection.createStatement();
+            
+            /* Compteur Personne */
+            int maxIdPersonne = 0;
+
+            ResultSet rs = s.executeQuery("SELECT MAX(id_personne) AS id FROM PERSONNE;");
+
+            if(!rs.next()){
+                rs.beforeFirst();
+                maxIdPersonne = rs.getInt("id");
+            }
+            
+            System.out.println("Max id_personne = "+ maxIdPersonne);
+        
+            rs = s.executeQuery("SELECT MAX(id_fournisseur) AS id FROM FOURNISSEUR;");
+
+            if(!rs.next()){
+                rs.beforeFirst();
+                if(rs.getInt("id") > maxIdPersonne)
+                    maxIdPersonne = rs.getInt("id");
+            }
+            
+            System.out.println("max id keeped : " + maxIdPersonne);
+            Personne.compteurPers = maxIdPersonne;
+            
+            rs = s.executeQuery("SELECT MAX(id_commande) AS n FROM COMMANDE;");
+            if(!rs.next()){
+                rs.beforeFirst();
+                Commande.compteurCom = rs.getInt("n");
+            }
+            
+            rs = s.executeQuery("SELECT MAX(id_produit) AS n FROM PRODUIT;");
+            if(!rs.next()){
+                rs.beforeFirst();
+                Produit.compteurProd = rs.getInt("n");
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
     
     
@@ -491,7 +568,7 @@ public class MainWindowController implements Initializable {
             ResultSet rs = stmt.executeQuery(query);
 
             while (rs.next()) {
-                Personne p  = new Personne(rs.getInt("id_personne"),rs.getString("nom_personne"), rs.getInt("tel_personne"));
+                Personne p  = new Personne(rs.getInt("id_personne"),rs.getString("nom_personne"), rs.getInt("tel_personne"),new Adresse(rs.getInt("num_rue"),rs.getString("lib_rue"),rs.getInt("cde_postal"),rs.getString("ville")));
                 lPersonne.add(p.toString());
             }
             
@@ -501,18 +578,19 @@ public class MainWindowController implements Initializable {
         
         return lPersonne;
     }  
+    
     public ObservableList<String> selectAllFournisseur(){
         
         ObservableList<String> l = FXCollections.observableArrayList();
         
-        String query = "SELECT id_fournisseur, nom_fournisseur, tel_fournisseur FROM FOURNISSEUR";
+        String query = "SELECT id_fournisseur, nom_fournisseur, tel_fournisseur,num_rue,lib_rue,cde_postal,ville FROM FOURNISSEUR";
         
         try (Statement stmt = connection.createStatement()) {
 
             ResultSet rs = stmt.executeQuery(query);
 
             while (rs.next()) {
-                Fournisseur f  = new Fournisseur(rs.getInt("id_fournisseur"),rs.getString("nom_fournisseur"), rs.getInt("tel_fournisseur"));
+                Fournisseur f  = new Fournisseur(rs.getInt("id_fournisseur"),rs.getString("nom_fournisseur"), rs.getInt("tel_fournisseur"),new Adresse(rs.getInt("num_rue"),rs.getString("lib_rue"),rs.getInt("cde_postal"),rs.getString("ville")));
                 l.add(f.toString());
             }
             

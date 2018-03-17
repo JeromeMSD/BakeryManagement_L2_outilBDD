@@ -43,6 +43,10 @@ public class Adresse {
     String getCreationQuery() {
         return "INSERT INTO ADRESSE VALUES ("+this.numRue+",'"+this.libRue+"',"+this.codePostal+",'"+this.ville+"');";
     }
+
+    String getReferenceQuery() {
+        return this.numRue+",'"+this.libRue+"',"+this.codePostal+",'"+this.ville+"'";
+    }
     
     
 }

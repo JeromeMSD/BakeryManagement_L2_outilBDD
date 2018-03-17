@@ -9,7 +9,7 @@ import java.util.HashMap;
 //Classe Produit, mais j'ai pas voulu modifié ton taff 
 public class Produit {
     private int idProduit;
-    private static int compteurProd = 0;
+    public static int compteurProd = 0;
     private String nomProd;
     private float prix;
     private int qte;
