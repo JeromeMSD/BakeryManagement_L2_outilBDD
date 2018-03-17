@@ -22,10 +22,7 @@ CREATE TABLE PERSONNE (
    lib_rue  varchar(50) NOT NULL,
    cde_postal  int(11) NOT NULL,
    ville  varchar(50) NOT NULL,
-   FOREIGN KEY (num_rue) REFERENCES ADRESSE(num_rue),
-   FOREIGN KEY (lib_rue) REFERENCES ADRESSE(lib_rue),
-   FOREIGN KEY (cde_postal) REFERENCES ADRESSE(cde_postal),
-   FOREIGN KEY (ville) REFERENCES ADRESSE(ville)
+   FOREIGN KEY (num_rue,lib_rue,cde_postal,ville) REFERENCES ADRESSE(num_rue,lib_rue,cde_postal,ville) ON DELETE CASCADE
 );
 
 CREATE TABLE PRODUIT (
@@ -43,10 +40,7 @@ CREATE TABLE FOURNISSEUR (
    lib_rue  varchar(50) NOT NULL,
    cde_postal  int(11) NOT NULL,
    ville  varchar(50) NOT NULL,
-   FOREIGN KEY (num_rue) REFERENCES ADRESSE(num_rue),
-   FOREIGN KEY (lib_rue) REFERENCES ADRESSE(lib_rue),
-   FOREIGN KEY (cde_postal) REFERENCES ADRESSE(cde_postal),
-   FOREIGN KEY (ville) REFERENCES ADRESSE(ville)  
+   FOREIGN KEY (num_rue,lib_rue,cde_postal,ville) REFERENCES ADRESSE(num_rue,lib_rue,cde_postal,ville) ON DELETE CASCADE
 );
 
 CREATE TABLE INGREDIENT (

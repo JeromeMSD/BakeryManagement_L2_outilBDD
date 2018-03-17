@@ -62,6 +62,6 @@ public class Personne{
     }
     
     public String getCreationQuery() {
-        return "INSERT INTO PERSONNE VALUES("+this.getId()+",'"+this.getNomPersonne()+"',"+this.getTelPersonne()+");";
+        return "INSERT INTO PERSONNE VALUES("+this.getId()+",'"+this.getNomPersonne()+"',"+this.getTelPersonne()+","+this.adresse.getReferenceQuery()+");";
     }
 }
