@@ -38,7 +38,7 @@ public class BakeryManager extends Application{
         
         Parent root = fl.load();
         
-        Scene scene = new Scene(root, 800, 700);
+        Scene scene = new Scene(root, 850, 725);
 
         primaryStage.setTitle("Bakery Manager");
         primaryStage.setScene(scene);

@@ -48,16 +48,6 @@ public class MainWindowController implements Initializable {
     
     @FXML
     private Label title;
-    @FXML
-    private Label subtitle;
-    
-    @FXML
-    private RadioButton cmd;
-    @FXML
-    private RadioButton stk;
-    @FXML
-    private RadioButton lst;
-    
     
     @FXML
     private ListView cmdList;
@@ -74,56 +64,88 @@ public class MainWindowController implements Initializable {
 
     MainWindowController(Connection conn) {
         this.connection = conn;
-        
         initIds();
-        /*
-        //Pour faire marcher les id incremental
-        Statement s = null;
-        try {
-            s = connection.createStatement();
-            s.executeUpdate("DELETE FROM ADRESSE;");
-            s.executeUpdate("DELETE FROM FOURNISSEUR;");
-            s.executeUpdate("DELETE FROM PERSONNE;");
-        } catch (SQLException ex) {
-            Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
-        }finally{
-            try {
-                s.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        */
-        refreshList();
     }
     
-    //DANGER - Supprimer tt les tuples de toutes les tables 
-    // A FINIR - ASSOCIER A UN BOUTON ROUGE AVEC CONFIRMATION
     public void hardResetTable(){
-        Statement s = null;
-        try {
-            s = connection.createStatement();
-            s.executeUpdate("DELETE FROM FOURNIR;");
-            s.executeUpdate("DELETE FROM NECESSITE;");
-            s.executeUpdate("DELETE FROM CONSTITUER;");
-            s.executeUpdate("DELETE FROM ADRESSE;");
-            
-            s.executeUpdate("DELETE FROM FOURNISSEUR;");
-            s.executeUpdate("DELETE FROM PERSONNE;");
-            s.executeUpdate("DELETE FROM PRODUIT;");
-            s.executeUpdate("DELETE FROM INGREDIENT;");
-            s.executeUpdate("DELETE FROM COMMANDE;");
-        } catch (SQLException ex) {
-            Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
-        }finally{
-            try {
-                s.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+        Stage stage = new Stage();
+        stage.setTitle("Connection");
+        
+        
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(25, 25, 25, 25));
+
+        
+        Text scenetitle = new Text("Attention!");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        grid.add(scenetitle, 0, 0, 2, 1);
+        scenetitle.setId("welcome-text");
+        
+        
+        Label question = new Label("Voulez-vous vraiment supprimer toutes les lignes de la Base de Données ?");
+        question.setWrapText(true);
+        grid.add(question, 0, 1,3,3);
+
+        Button btn = new Button("Oui");
+        
+
+        HBox hbBtn = new HBox(10);
+        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hbBtn.getChildren().add(btn);
+        grid.add(hbBtn, 2, 5);
+        Button abortBtn = new Button("Non");
+        grid.add(abortBtn, 0, 5);
+        abortBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+                stage.close();
             }
-        }
+        });
+        
+        btn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                Statement s = null;
+                try {
+                    s = connection.createStatement();
+                    
+
+                    s.executeUpdate("DELETE FROM FOURNISSEUR;");
+                    s.executeUpdate("DELETE FROM PERSONNE;");
+                    s.executeUpdate("DELETE FROM ADRESSE;");
+                    
+                    s.executeUpdate("DELETE FROM PRODUIT;");
+                    s.executeUpdate("DELETE FROM INGREDIENT;");
+                    s.executeUpdate("DELETE FROM COMMANDE;");
+                    s.executeUpdate("DELETE FROM FOURNIR;");
+                    s.executeUpdate("DELETE FROM NECESSITER;");
+                    s.executeUpdate("DELETE FROM CONSTITUER;");
+                    
+                    stage.close();
+                    refreshList();
+                } catch (SQLException ex) {
+                    Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+                }finally{
+                    try {
+                        s.close();
+                    } catch (SQLException ex) {
+                        Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
+
+        
+        Scene scene = new Scene(grid, 325, 200);
+        scene.getStylesheets().add(Login.class.getResource("/css/Login.css").toExternalForm());
+        stage.setScene(scene);
+        
+        stage.showAndWait();
+        
     }
-    
     public void initIds(){
         try {
             // RECUPERER Le nombre maximum des tuples et l'ajouter l'ajout dans chacune des classe
@@ -150,7 +172,7 @@ public class MainWindowController implements Initializable {
             }
             
             System.out.println("max id keeped : " + maxIdPersonne);
-            Personne.compteurPers = maxIdPersonne;
+            Personne.compteurPers = maxIdPersonne; // Peut etre remplacer par methode de classe ?
             
             rs = s.executeQuery("SELECT MAX(id_commande) AS n FROM COMMANDE;");
             if(!rs.next()){
@@ -171,52 +193,39 @@ public class MainWindowController implements Initializable {
     }
     
     
-    // <editor-fold defaultstate="collapsed" desc="Affichage composant FXML">
-    public void cleanScreen(){
-        subtitle.setText("");
-    
-    }
-    
-    
-    @FXML
-    public void showCommande(){
-        if(cmd.isSelected() == false)
-            cmd.selectedProperty().set(true);
-        cleanScreen();
-        subtitle.setText("Liste des commandes");
-    }
-    @FXML
-    public void showStock(){
-        if(stk.isSelected() == false)
-            stk.selectedProperty().set(true);
-        cleanScreen();
-        subtitle.setText("Stocks");
-
-    }
-    @FXML
-    public void showListe(){
-        cleanScreen();
-        if(lst.isSelected() == false)
-            lst.selectedProperty().set(true);
-        subtitle.setText("Listes");
-    }
-    
-    //</editor-fold>
-    
     
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Commandes">
     @FXML
-    public void addCmd() throws Exception{
-
+    public void addCmd(){
+        refreshList();
     }
     
     @FXML
     public void modCmd(){
-        
+        refreshList();
     }
     
     @FXML
     public void delCmd(){
+        String s = (String) cmdList.getSelectionModel().getSelectedItem();
+        if(s != null){
+            s = s.split(":")[0];
+            Statement stmt = null;
+
+            try{
+                stmt = connection.createStatement();
+                stmt.executeUpdate("DELETE FROM COMMANDE WHERE id_commande="+s);
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }finally{
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+        }
+        refreshList();
     }
     // </editor-fold>
     
@@ -372,13 +381,30 @@ public class MainWindowController implements Initializable {
     @FXML
     public void modFour(){
         
+        refreshList();
     }
     
     @FXML
     public void delFour(){
-        //Fournisseur f = fourList.getSelectionModel().getSelectedItem();
-        //DELETE FROM FOURNISSEUR WHERE id_fournisseur=f.getId();
-        
+        String s = (String) fourList.getSelectionModel().getSelectedItem();
+        if(s != null){
+            s = s.split(":")[0];
+            Statement stmt = null;
+
+            try{
+                stmt = connection.createStatement();
+                stmt.executeUpdate("DELETE FROM FOURNISSEUR WHERE id_fournisseur="+s);
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }finally{
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+        }
+        refreshList();
     }
     // </editor-fold>
     
@@ -404,19 +430,19 @@ public class MainWindowController implements Initializable {
         scenetitle.setId("title");
         
         
-        Label name = new Label("Nom :");
-        grid.add(name, 0, 2);
+        Label nameL = new Label("Nom :");
+        grid.add(nameL, 0, 2);
 
-        TextField nameTextField = new TextField();
-        grid.add(nameTextField, 1, 2,3, 1);
-        list.add(nameTextField);
+        TextField name = new TextField();
+        grid.add(name, 1, 2,3, 1);
+        list.add(name);
         
-        Label tel = new Label("Tel :");
-        grid.add(tel, 0, 3);
+        Label telL = new Label("Tel :");
+        grid.add(telL, 0, 3);
 
-        TextField telTextField = new TextField();
-        grid.add(telTextField, 1, 3,3, 1);
-        list.add(telTextField);
+        TextField tel = new NumberField();
+        grid.add(tel, 1, 3,3, 1);
+        list.add(tel);
         
         Label adresseTitle = new Label("Adresse");
         scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
@@ -428,7 +454,7 @@ public class MainWindowController implements Initializable {
         Label numAdrL = new Label("Numero :");
         grid.add(numAdrL, 0, 6);
 
-        TextField numAdr = new TextField();
+        TextField numAdr = new NumberField();
         grid.add(numAdr, 1, 6);
         list.add(numAdr);
         
@@ -442,7 +468,7 @@ public class MainWindowController implements Initializable {
         Label cdeAdrL = new Label("Code Postal :");
         grid.add(cdeAdrL, 0, 8);
 
-        TextField cdeAdr = new TextField();
+        TextField cdeAdr = new NumberField();
         grid.add(cdeAdr, 1, 8);
         list.add(cdeAdr);
         
@@ -474,6 +500,8 @@ public class MainWindowController implements Initializable {
             @Override
             public void handle(ActionEvent e) {
                 int cpt = 0;
+                Statement stmt = null; 
+                
                 
                 for (TextField t : list)
                     if(t.getText().isEmpty()){
@@ -484,15 +512,35 @@ public class MainWindowController implements Initializable {
                     }
                     
                 if(cpt == 0){
-                    //fin + query
+                    try {
+                        Adresse adr = new Adresse(Integer.parseInt(numAdr.getText()), libAdr.getText(), Integer.parseInt(cdeAdr.getText()), villeAdr.getText());
+                        Personne fournisseur = new Personne(name.getText(), Integer.parseInt(tel.getText()), adr);
+                        
+                        stmt = connection.createStatement();
+                        stmt.executeUpdate(adr.getCreationQuery());
+                        stmt.executeUpdate(fournisseur.getCreationQuery());
+                        stage.close();
+                        
+                    } catch (SQLException ex) {
+                        System.err.println(ex.getMessage());
+                        actiontarget.setText("Echec à l'insertion SQL");
+                        actiontarget.setFill(Color.FIREBRICK);
+                    }finally {
+                        if (stmt != null) { 
+                            try {
+                                stmt.close();
+                            } catch (SQLException ex) {
+                                System.err.println(ex.getMessage());
+                            }
+                        }
+                    }
+                }else{
+                    actiontarget.setText("Certain champs sont vide");
+                    actiontarget.setFill(Color.FIREBRICK);
                 }
-                
-                actiontarget.setText("Certain champs sont vide");
-                actiontarget.setFill(Color.FIREBRICK);
-                
             }
         });
-        
+
         cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
@@ -500,58 +548,111 @@ public class MainWindowController implements Initializable {
             }
         });
         
+        
         Scene scene = new Scene(grid, 400, 400);
         scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
         stage.setScene(scene);
         
         stage.showAndWait();
+        refreshList();
     }
     
     @FXML
     public void modClient(){
-        
+        refreshList();
     }
     
     @FXML
     public void delClient(){
-        //Client c = clientList.getSelectionModel().getSelectedItem();
-        //DELETE FROM PERSONNE WHERE id_personne=c.getId();
+        String s = (String) clientList.getSelectionModel().getSelectedItem();
+        if(s != null){
+            s = s.split(":")[0];
+            Statement stmt = null;
+
+            try{
+                stmt = connection.createStatement();
+                stmt.executeUpdate("DELETE FROM PERSONNE WHERE id_personne="+s);
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }finally{
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+        }
+        refreshList();
     }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Ingredients">
     @FXML
     public void addIng(){
-        
+        refreshList();
     }
     
     @FXML
     public void modIng(){
-        
+        refreshList();
     }
     
     @FXML
     public void delIng(){
-        //Ingredient i = ingList.getSelectionModel().getSelectedItem();
-        //DELETE FROM INGREDIENT WHERE id_ingredientt=i.getId();
+        String s = (String) ingList.getSelectionModel().getSelectedItem();
+        if(s != null){
+            s = s.split(":")[0];
+            Statement stmt = null;
+
+            try{
+                stmt = connection.createStatement();
+                stmt.executeUpdate("DELETE FROM INGREDIENT WHERE id_ingredient="+s);
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }finally{
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+        }
+        refreshList();
     }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Produit">
     @FXML
-    public void addProd() throws Exception{
-    
+    public void addProd(){
+        refreshList();
     }
     
     @FXML
     public void modProd(){
-        
+        refreshList();
     }
     
     @FXML
     public void delProd(){
-        //Produit p = prodList.getSelectionModel().getSelectedItem();
-        //DELETE FROM PRODUIT WHERE id_produit=p.getId();
+        String s = (String) prodList.getSelectionModel().getSelectedItem();
+        if(s != null){
+            s = s.split(":")[0];
+            Statement stmt = null;
+
+            try{
+                stmt = connection.createStatement();
+                stmt.executeUpdate("DELETE FROM PRODUIT WHERE id_produit="+s);
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }finally{
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+        }
+        refreshList();
     }
     // </editor-fold>
     
@@ -624,7 +725,7 @@ public class MainWindowController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        refreshList();
     }    
     
     

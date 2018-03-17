@@ -8,9 +8,8 @@
 <?import javafx.scene.paint.*?>
 <?import java.net.URL?>
 <?import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory?>
-<?import fxml.other.*?>
 
-<GridPane id="MainGrid" prefHeight="800" prefWidth="700" xmlns:fx="http://javafx.com/fxml/1" styleClass="root"  >
+<GridPane id="MainGrid" prefHeight="850" prefWidth="725" xmlns:fx="http://javafx.com/fxml/1" styleClass="root"  >
     <stylesheets>
         <URL value="@/css/MainCss.css" />
     </stylesheets>
@@ -40,30 +39,11 @@
         <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" percentHeight="5.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" percentHeight="5.0" vgrow="SOMETIMES" />
     </rowConstraints>
     <children>
         <Label fx:id="title" text="Bakery Manager" GridPane.columnIndex="0" GridPane.columnSpan="11" GridPane.rowIndex="0"  GridPane.halignment="CENTER"/>
-        <!--
-        <fx:define>
-            <ToggleGroup fx:id="option"/>  
-        </fx:define>
-        <VBox alignment="CENTER" GridPane.columnSpan="2" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <Label text="Liste des commandes" />
-            <RadioButton fx:id="cmd" onAction="#showCommande" toggleGroup="$option" selected="true" />
-        </VBox>
-        <VBox alignment="CENTER" GridPane.columnSpan="2" GridPane.columnIndex="4" GridPane.rowIndex="1">
-            <Label text="Stocks" />
-            <RadioButton fx:id="stk" onAction="#showStock" toggleGroup="$option" />
-        </VBox>
-        <VBox alignment="CENTER" GridPane.columnSpan="2" GridPane.columnIndex="7" GridPane.rowIndex="1">
-            <Label text="Listes" />
-            <RadioButton fx:id="lst" onAction="#showListe" toggleGroup="$option" />
-        </VBox>
-        
-        <FlowPane  GridPane.columnIndex="0" GridPane.columnSpan="10" GridPane.rowIndex="0" styleClass="bar" maxHeight="40" />
-        <Label fx:id="subtitle" styleClass="subtitle" text="Bakery Manager" GridPane.columnIndex="0" GridPane.columnSpan="10" GridPane.rowIndex="2" GridPane.halignment="CENTER" />
-        -->
-        
+       
         <VBox GridPane.columnIndex="1" GridPane.columnSpan="9" GridPane.rowIndex="1" GridPane.rowSpan="3">
             <Label text="Liste des Commandes"/>
             <ListView  fx:id="cmdList" />
@@ -73,9 +53,9 @@
                     <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
                     <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
                 </columnConstraints>
-                <Button onAction="#addCmd" styleClass="btn" GridPane.columnIndex="0" GridPane.Halignment="CENTER">+</Button>            
-                <Button onAction="#modCmd" styleClass="btn" GridPane.columnIndex="1" GridPane.Halignment="CENTER">Modifier</Button>                        
-                <Button onAction="#delCmd" styleClass="btn" GridPane.columnIndex="2" GridPane.Halignment="CENTER">-</Button>            
+                <Button onAction="#addCmd" styleClass="btn" GridPane.columnIndex="0" GridPane.halignment="CENTER">+</Button>            
+                <Button onAction="#modCmd" styleClass="btn" GridPane.columnIndex="1" GridPane.halignment="CENTER">Modifier</Button>                        
+                <Button onAction="#delCmd" styleClass="btn" GridPane.columnIndex="2" GridPane.halignment="CENTER">-</Button>            
             </GridPane>
         </VBox>
         
@@ -89,9 +69,9 @@
                     <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
                     <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
                 </columnConstraints>
-                <Button onAction="#addIng" styleClass="btn" GridPane.columnIndex="0" GridPane.Halignment="CENTER">+</Button>            
-                <Button onAction="#modIng" styleClass="btn" GridPane.columnIndex="1" GridPane.Halignment="CENTER">Modifier</Button>                        
-                <Button onAction="#delIng" styleClass="btn" GridPane.columnIndex="2" GridPane.Halignment="CENTER">-</Button>            
+                <Button onAction="#addIng" styleClass="btn" GridPane.columnIndex="0" GridPane.halignment="CENTER">+</Button>            
+                <Button onAction="#modIng" styleClass="btn" GridPane.columnIndex="1" GridPane.halignment="CENTER">Modifier</Button>                        
+                <Button onAction="#delIng" styleClass="btn" GridPane.columnIndex="2" GridPane.halignment="CENTER">-</Button>            
             </GridPane>
         </VBox>
         
@@ -105,9 +85,9 @@
                     <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
                     <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
                 </columnConstraints>
-                <Button onAction="#addProd" styleClass="btn" GridPane.columnIndex="0" GridPane.Halignment="CENTER">+</Button>            
-                <Button onAction="#modProd" styleClass="btn" GridPane.columnIndex="1" GridPane.Halignment="CENTER">Modifier</Button>                        
-                <Button onAction="#delProd" styleClass="btn" GridPane.columnIndex="2" GridPane.Halignment="CENTER">-</Button>            
+                <Button onAction="#addProd" styleClass="btn" GridPane.columnIndex="0" GridPane.halignment="CENTER">+</Button>            
+                <Button onAction="#modProd" styleClass="btn" GridPane.columnIndex="1" GridPane.halignment="CENTER">Modifier</Button>                        
+                <Button onAction="#delProd" styleClass="btn" GridPane.columnIndex="2" GridPane.halignment="CENTER">-</Button>            
             </GridPane>
         </VBox>
         
@@ -121,9 +101,9 @@
                     <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
                     <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
                 </columnConstraints>
-                <Button onAction="#addFour" styleClass="btn" GridPane.columnIndex="0" GridPane.Halignment="CENTER">+</Button>            
-                <Button onAction="#modFour" styleClass="btn" GridPane.columnIndex="1" GridPane.Halignment="CENTER">Modifier</Button>                        
-                <Button onAction="#delFour" styleClass="btn" GridPane.columnIndex="2" GridPane.Halignment="CENTER">-</Button>            
+                <Button onAction="#addFour" styleClass="btn" GridPane.columnIndex="0" GridPane.halignment="CENTER">+</Button>            
+                <Button onAction="#modFour" styleClass="btn" GridPane.columnIndex="1" GridPane.halignment="CENTER">Modifier</Button>                        
+                <Button onAction="#delFour" styleClass="btn" GridPane.columnIndex="2" GridPane.halignment="CENTER">-</Button>            
             </GridPane>
         </VBox>
         
@@ -136,12 +116,12 @@
                     <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
                     <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
                 </columnConstraints>
-                <Button onAction="#addClient" styleClass="btn" GridPane.columnIndex="0" GridPane.Halignment="CENTER">+</Button>            
-                <Button onAction="#modClient" styleClass="btn" GridPane.columnIndex="1" GridPane.Halignment="CENTER">Modifier</Button>                        
-                <Button onAction="#delClient" styleClass="btn" GridPane.columnIndex="2" GridPane.Halignment="CENTER">-</Button>            
+                <Button onAction="#addClient" styleClass="btn" GridPane.columnIndex="0" GridPane.halignment="CENTER">+</Button>            
+                <Button onAction="#modClient" styleClass="btn" GridPane.columnIndex="1" GridPane.halignment="CENTER">Modifier</Button>                        
+                <Button onAction="#delClient" styleClass="btn" GridPane.columnIndex="2" GridPane.halignment="CENTER">-</Button>            
             </GridPane>
         </VBox>
         
-        
+        <Button onAction="#hardResetTable" styleClass="error" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="12" GridPane.columnSpan="3" >Supprimer toutes les lignes</Button>
     </children>
 </GridPane>
