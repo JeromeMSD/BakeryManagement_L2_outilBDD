@@ -155,8 +155,7 @@ public class MainWindowController implements Initializable {
 
             ResultSet rs = s.executeQuery("SELECT MAX(id_personne) AS id FROM PERSONNE;");
 
-            if(!rs.next()){
-                rs.beforeFirst();
+            if(rs.next()){
                 maxIdPersonne = rs.getInt("id");
             }
             
@@ -164,8 +163,7 @@ public class MainWindowController implements Initializable {
         
             rs = s.executeQuery("SELECT MAX(id_fournisseur) AS id FROM FOURNISSEUR;");
 
-            if(!rs.next()){
-                rs.beforeFirst();
+            if(rs.next()){
                 if(rs.getInt("id") > maxIdPersonne)
                     maxIdPersonne = rs.getInt("id");
             }
@@ -174,24 +172,21 @@ public class MainWindowController implements Initializable {
             Personne.compteurPers = maxIdPersonne; // Peut etre remplacer par methode de classe ?
             
             rs = s.executeQuery("SELECT MAX(id_commande) AS n FROM COMMANDE;");
-            if(!rs.next()){
-                rs.beforeFirst();
+            if(rs.next()){
                 Commande.compteurCom = rs.getInt("n");
-                System.out.println("Max id_commande ="+Commande.compteurCom);
+                System.out.println("Max id_commande = "+Commande.compteurCom);
             }
             
             rs = s.executeQuery("SELECT MAX(id_produit) AS n FROM PRODUIT;");
-            if(!rs.next()){
-                rs.beforeFirst();
+            if(rs.next()){
                 Produit.compteurProd = rs.getInt("n");
-                System.out.println("Max id_produit ="+Produit.compteurProd);
+                System.out.println("Max id_produit = "+Produit.compteurProd);
             }
             
             rs = s.executeQuery("SELECT MAX(id_ingredient) AS n FROM INGREDIENT;");
-            if(!rs.next()){
-                rs.beforeFirst();
+            if(rs.next()){
                 Ingredient.compteurIng = rs.getInt("n");
-                System.out.println("Max id_ingredient ="+Ingredient.compteurIng);
+                System.out.println("Max id_ingredient = "+Ingredient.compteurIng);
             }
             
         } catch (SQLException ex) {
@@ -1205,7 +1200,138 @@ public class MainWindowController implements Initializable {
     
     @FXML
     public void modIng(){
-        
+        String s = (String) ingList.getSelectionModel().getSelectedItem();
+        final String id;
+        if(s != null){
+            id = s.split(":")[0];
+            
+            Stage stage = new Stage();
+            Statement st = null;
+            List<TextField> list = new ArrayList<>();
+
+            stage.setTitle("Ingredient");
+
+
+            GridPane grid = new GridPane();
+            grid.setAlignment(Pos.CENTER);
+            grid.setHgap(10);
+            grid.setVgap(10);
+
+
+            Label scenetitle = new Label("Nouvel ingredient");
+            scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+            grid.add(scenetitle, 0, 0, 4, 2);
+            scenetitle.setId("title");
+            scenetitle.setWrapText(true);
+
+
+            Label nameL = new Label("Nom :");
+            grid.add(nameL, 0, 3);
+
+            TextField name = new TextField();
+            grid.add(name, 1, 3,3, 1);
+            list.add(name);
+
+            Label qteL = new Label("Quantite :");
+            grid.add(qteL, 0, 4);
+
+            TextField qte = new NumberField();
+            grid.add(qte, 1, 4,3, 1);
+            list.add(qte);
+
+
+            Button cancelBtn = new Button("Annuler");        
+            Button validBtn = new Button("Valider");
+
+
+            final Text actiontarget = new Text();
+            grid.add(actiontarget, 1, 5,2,1);
+            actiontarget.setId("actiontarget");
+
+            HBox hbBtn = new HBox(10);
+            hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+            hbBtn.getChildren().add(validBtn);
+            grid.add(hbBtn, 3, 5);
+            grid.add(cancelBtn, 0, 5);
+
+
+            validBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    int cpt = 0;
+                    Statement stmt = null; 
+
+
+                    for (TextField t : list)
+                        if(t.getText().isEmpty()){
+                            cpt++;
+                            t.setStyle("-fx-border-color: firebrick;");
+                        }else{
+                            t.setStyle("-fx-border-color: white;");
+                        }
+
+                    if(cpt == 0){
+                        try {
+                            Ingredient ingredient = new Ingredient(Integer.parseInt(id),name.getText(), Integer.parseInt(qte.getText()));
+
+                            stmt = connection.createStatement();
+                            
+                            stmt.executeUpdate("DELETE FROM INGREDIENT WHERE id_ingredient="+Integer.parseInt(id)+";");
+                            
+                            stmt.executeUpdate(ingredient.getCreationQuery());
+                            stage.close();
+
+                        } catch (SQLException ex) {
+                            System.err.println(ex.getMessage());
+                            actiontarget.setText("Echec à l'insertion SQL");
+                            actiontarget.setFill(Color.FIREBRICK);
+                        }finally {
+                            if (stmt != null) { 
+                                try {
+                                    stmt.close();
+                                } catch (SQLException ex) {
+                                    System.err.println(ex.getMessage());
+                                }
+                            }
+                        }
+                    }else{
+                        actiontarget.setText("Certain champs sont vide");
+                        actiontarget.setFill(Color.FIREBRICK);
+                    }
+                }
+            });
+
+            cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    stage.close();
+                }
+            });
+
+            try{
+                st = connection.createStatement();
+
+                ResultSet rs = st.executeQuery("SELECT * FROM INGREDIENT WHERE id_ingredient="+Integer.parseInt(id)+";");
+                rs.next();
+                name.setText(rs.getString("nom_ingredient"));
+                qte.setText(rs.getInt("qte_disponible")+"");
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }finally{
+                try {
+                    st.close();
+                } catch (SQLException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+
+
+            Scene scene = new Scene(grid, 350, 250);
+            scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
+            stage.setScene(scene);
+
+            stage.showAndWait();
+        }
         refreshList();
     }
     
@@ -1219,6 +1345,7 @@ public class MainWindowController implements Initializable {
             try{
                 stmt = connection.createStatement();
                 stmt.executeUpdate("DELETE FROM INGREDIENT WHERE id_ingredient="+s);
+                stmt.executeUpdate("DELETE FROM NECESSITER WHERE id_ingredient="+s);
             } catch (SQLException ex) {
                 System.err.println(ex.getMessage());
             }finally{
@@ -1237,6 +1364,7 @@ public class MainWindowController implements Initializable {
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Produit">
     @FXML
     public void addProd(){
+        // <editor-fold defaultstate="collapsed" desc="Interface Utilisateur">
         Stage stage = new Stage();
         List<TextField> list = new ArrayList<>();
         List<TextField> ingList = new ArrayList<>();
@@ -1334,13 +1462,13 @@ public class MainWindowController implements Initializable {
         grid.add(hbBtn, 3, 12);
         grid.add(cancelBtn, 0, 12);
 
+        //</editor-fold>
         
         validBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
                 int cpt = 0,cptIngredient = 0;
                 Statement stmt = null; 
-                
                 
                 for (TextField t : list)
                     if(t.getText().isEmpty()){
@@ -1352,11 +1480,14 @@ public class MainWindowController implements Initializable {
                     
                 if(cpt == 0){
                     try {
+                        ResultSet rs = null;
+                        stmt = connection.createStatement();
                         for(TextField t : ingList){
                             String s = t.getText();
                             if(!s.isEmpty()){
-                                ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM INGREDIENT WHERE nom_ingredient="+s.split("/")[0]+";");
-                                if(rs.next() && rs.getInt(s) == 0){
+                                rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM INGREDIENT WHERE nom_ingredient='"+s.split("/")[0]+"';");
+                                rs.next();
+                                if(rs.getInt("n") == 0){
                                     t.setStyle("-fx-border-color: firebrick;");
                                     cptIngredient++;
                                 }
@@ -1368,7 +1499,8 @@ public class MainWindowController implements Initializable {
                             for(TextField t : ingList){
                                 String s = t.getText();
                                 if(!s.isEmpty()){
-                                    ResultSet rs = stmt.executeQuery("SELECT id_ingredient FROM INGREDIENT WHERE nom_ingredient="+s.split("/")[0]+";");
+                                    rs = stmt.executeQuery("SELECT id_ingredient FROM INGREDIENT WHERE nom_ingredient='"+s.split("/")[0]+"';");
+                                    rs.next();
                                     stmt.executeUpdate("INSERT INTO NECESSITER VALUES("+rs.getInt("id_ingredient")+","+produit.getId()+","+s.split("/")[1]+");");
                                 }
                             }
@@ -1421,6 +1553,228 @@ public class MainWindowController implements Initializable {
     
     @FXML
     public void modProd(){
+        String str = (String) prodList.getSelectionModel().getSelectedItem();
+        final String id;
+        if(str != null){
+            id = str.split(":")[0];
+            Statement st = null;
+            
+            // <editor-fold defaultstate="collapsed" desc="Interface Utilisateur">
+            Stage stage = new Stage();
+            List<TextField> list = new ArrayList<>();
+            List<TextField> ingList = new ArrayList<>();
+
+            stage.setTitle("Produit");
+
+
+            GridPane grid = new GridPane();
+            grid.setAlignment(Pos.CENTER);
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(0, 0, 0, 0));
+
+
+            Text scenetitle = new Text("Nouveau produit");
+            scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+            grid.add(scenetitle, 0, 0, 4, 1);
+            scenetitle.setId("title");
+
+
+            Label nameL = new Label("Nom :");
+            grid.add(nameL, 0, 2);
+
+            TextField name = new TextField();
+            grid.add(name, 1, 2,3, 1);
+            list.add(name);
+
+            Label prixL = new Label("Prix unitaire :");
+            grid.add(prixL, 0, 3);
+
+            TextField prixProd = new TextField();
+            grid.add(prixProd, 1, 3,3, 1);
+            list.add(prixProd);
+
+            Label qteL = new Label("Quantite :");
+            grid.add(qteL, 0, 4);
+
+            TextField qte = new NumberField();
+            grid.add(qte, 1, 4,3, 1);
+            list.add(qte);
+
+            Label adresseTitle = new Label("Ingredient nécéssaire");
+            scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
+            HBox hbAdr = new HBox(10);
+            hbAdr.setAlignment(Pos.CENTER);
+            hbAdr.getChildren().add(adresseTitle);
+            grid.add(hbAdr, 0, 5, 4, 1);
+
+            Label ingL = new Label("Ingredient/quantité(unite) :");
+            grid.add(ingL, 0, 6);
+            Label ingL2 = new Label("Ingredient/quantité(unite) :");
+            grid.add(ingL2, 0, 7);
+            Label ingL3 = new Label("Ingredient/quantité(unite) :");
+            grid.add(ingL3, 0, 8);
+            Label ingL4 = new Label("Ingredient/quantité(unite) :");
+            grid.add(ingL4, 0, 9);
+            Label ingL5 = new Label("Ingredient/quantité(unite) :");
+            grid.add(ingL5, 0, 10);
+
+
+
+            TextField ing1 = new TextField();
+            grid.add(ing1, 1, 6);
+            list.add(ing1);
+            ingList.add(ing1);
+
+            TextField ing2 = new TextField();
+            grid.add(ing2, 1, 7);
+            ingList.add(ing2);
+
+            TextField ing3 = new TextField();
+            grid.add(ing3, 1, 8);
+            ingList.add(ing3);
+
+            TextField ing4 = new TextField();
+            grid.add(ing4, 1, 9);
+            ingList.add(ing4);
+
+            TextField ing5 = new TextField();
+            grid.add(ing5, 1, 10);
+            ingList.add(ing5);
+
+
+            Button cancelBtn = new Button("Annuler");        
+            Button validBtn = new Button("Valider");
+
+
+            final Text actiontarget = new Text();
+            grid.add(actiontarget, 1, 12,2,1);
+            actiontarget.setId("actiontarget");
+
+            HBox hbBtn = new HBox(10);
+            hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+            hbBtn.getChildren().add(validBtn);
+            grid.add(hbBtn, 3, 12);
+            grid.add(cancelBtn, 0, 12);
+
+            //</editor-fold>
+
+            validBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    int cpt = 0,cptIngredient = 0;
+                    Statement stmt = null; 
+
+                    for (TextField t : list)
+                        if(t.getText().isEmpty()){
+                            cpt++;
+                            t.setStyle("-fx-border-color: firebrick;");
+                        }else{
+                            t.setStyle("-fx-border-color: white;");
+                        }
+
+                    if(cpt == 0){
+                        try {
+                            ResultSet rs = null;
+                            stmt = connection.createStatement();
+                            for(TextField t : ingList){
+                                String s = t.getText();
+                                if(!s.isEmpty()){
+                                    rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM INGREDIENT WHERE nom_ingredient='"+s.split("/")[0]+"';");
+                                    rs.next();
+                                    if(rs.getInt("n") == 0){
+                                        t.setStyle("-fx-border-color: firebrick;");
+                                        cptIngredient++;
+                                    }
+                                }
+                            }
+                            if(cptIngredient == 0){
+                                Produit produit = new Produit(Integer.parseInt(id),name.getText(),Float.parseFloat(prixProd.getText()),Integer.parseInt(qte.getText()));
+                               
+                                stmt.executeUpdate("DELETE FROM PRODUIT WHERE id_produit="+Integer.parseInt(id)+";");
+                                stmt.executeUpdate("DELETE FROM NECESSITER WHERE id_produit="+Integer.parseInt(id)+";");
+                                stmt.executeUpdate(produit.getCreationQuery());
+                                
+                                for(TextField t : ingList){
+                                    String s = t.getText();
+                                    if(!s.isEmpty()){
+                                        rs = stmt.executeQuery("SELECT id_ingredient FROM INGREDIENT WHERE nom_ingredient='"+s.split("/")[0]+"';");
+                                        rs.next();
+                                        stmt.executeUpdate("INSERT INTO NECESSITER VALUES("+rs.getInt("id_ingredient")+","+produit.getId()+","+s.split("/")[1]+");");
+                                    }
+                                }
+
+                            }else{
+                                actiontarget.setText("Ingredient inconnu !");
+                                actiontarget.setFill(Color.FIREBRICK);
+                                return;
+                            }
+
+                            stmt = connection.createStatement();
+                            //stmt.executeUpdate(personne.getCreationQuery());
+                            stage.close();
+
+                        } catch (SQLException ex) {
+                            System.err.println(ex.getMessage());
+                            actiontarget.setText("Echec à l'insertion SQL");
+                            actiontarget.setFill(Color.FIREBRICK);
+                        }finally {
+                            if (stmt != null) { 
+                                try {
+                                    stmt.close();
+                                } catch (SQLException ex) {
+                                    System.err.println(ex.getMessage());
+                                }
+                            }
+                        }
+                    }else{
+                        actiontarget.setText("Certain champs sont vide");
+                        actiontarget.setFill(Color.FIREBRICK);
+                    }
+                }
+            });
+
+            cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    stage.close();
+                }
+            });
+
+            try{
+                st = connection.createStatement();
+                int cpt = 1;
+                
+                ResultSet rs = st.executeQuery("SELECT * FROM PRODUIT WHERE id_produit="+Integer.parseInt(id)+";");
+                rs.next();
+                name.setText(rs.getString("nom_prod"));
+                prixProd.setText(rs.getFloat("prix_prod")+"");
+                qte.setText(rs.getInt("qte_prod")+"");
+                
+                rs = st.executeQuery("SELECT * FROM NECESSITER natural join INGREDIENT WHERE id_produit="+Integer.parseInt(id)+";");
+                for(TextField t : ingList){
+                    if(rs.next())
+                        t.setText(rs.getString("nom_ingredient")+"/"+rs.getInt("qte_necessaire"));
+                }
+                
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }finally{
+                try {
+                    st.close();
+                } catch (SQLException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+
+            Scene scene = new Scene(grid, 500, 425);
+            scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
+            stage.setScene(scene);
+
+
+            stage.showAndWait();
+
+        }
         refreshList();
     }
     
@@ -1434,6 +1788,7 @@ public class MainWindowController implements Initializable {
             try{
                 stmt = connection.createStatement();
                 stmt.executeUpdate("DELETE FROM PRODUIT WHERE id_produit="+s);
+                stmt.executeUpdate("DELETE FROM NECESSITER WHERE id_produit="+s);
             } catch (SQLException ex) {
                 System.err.println(ex.getMessage());
             }finally{
@@ -1550,7 +1905,7 @@ public class MainWindowController implements Initializable {
             ResultSet rs = stmt.executeQuery(query);
 
             while (rs.next()) {
-                Produit p  = new Produit(rs.getInt("id_prod"),rs.getString("nom_prod"),rs.getFloat("prix_prod"),rs.getInt("qte_prod"));
+                Produit p  = new Produit(rs.getInt("id_produit"),rs.getString("nom_prod"),rs.getFloat("prix_prod"),rs.getInt("qte_prod"));
                 l.add(p.toString());
             }
             
