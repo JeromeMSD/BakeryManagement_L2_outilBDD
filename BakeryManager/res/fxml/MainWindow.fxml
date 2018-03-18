@@ -42,7 +42,7 @@
         <RowConstraints minHeight="10.0" percentHeight="5.0" vgrow="SOMETIMES" />
     </rowConstraints>
     <children>
-        <Label fx:id="title" text="Bakery Manager" GridPane.columnIndex="0" GridPane.columnSpan="11" GridPane.rowIndex="0"  GridPane.halignment="CENTER"/>
+        <javafx.scene.text.Text fx:id="title" text="Bakery Manager" GridPane.columnIndex="0" GridPane.columnSpan="11" GridPane.rowIndex="0"  GridPane.halignment="CENTER"/>
        
         <VBox GridPane.columnIndex="1" GridPane.columnSpan="9" GridPane.rowIndex="1" GridPane.rowSpan="3">
             <Label text="Liste des Commandes"/>

@@ -25,8 +25,15 @@ public class Commande {
         this.date=d;
         this.commande=commande;
         /* Doit parcourir la commande(liste d'ingredient + prix) pour en calculer son prix total pour l'instancier */
-        
     }
+
+    public Commande(int aInt, Date fromString, float aFloat) {
+        this.idCommande = aInt;
+        this.date = fromString;
+        this.prixTotal = aFloat;
+    }
+    
+    
     
     @Override
     public String toString () {

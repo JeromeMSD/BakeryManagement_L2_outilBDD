@@ -12,11 +12,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableArray;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -28,7 +28,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -37,6 +36,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.converter.DateTimeStringConverter;
 
 
 /**
@@ -45,10 +45,7 @@ import javafx.stage.Stage;
  * @author jmddu_000
  */
 public class MainWindowController implements Initializable {
-    
-    @FXML
-    private Label title;
-    
+
     @FXML
     private ListView cmdList;
     @FXML
@@ -61,7 +58,8 @@ public class MainWindowController implements Initializable {
     private ListView prodList;
     
     private final Connection connection;
-
+    private DateTimeStringConverter format = new DateTimeStringConverter(Locale.FRANCE,"dd/MM/YYYY");
+    
     MainWindowController(Connection conn) {
         this.connection = conn;
         initIds();
@@ -146,6 +144,7 @@ public class MainWindowController implements Initializable {
         stage.showAndWait();
         
     }
+    
     public void initIds(){
         try {
             // RECUPERER Le nombre maximum des tuples et l'ajouter l'ajout dans chacune des classe
@@ -178,12 +177,21 @@ public class MainWindowController implements Initializable {
             if(!rs.next()){
                 rs.beforeFirst();
                 Commande.compteurCom = rs.getInt("n");
+                System.out.println("Max id_commande ="+Commande.compteurCom);
             }
             
             rs = s.executeQuery("SELECT MAX(id_produit) AS n FROM PRODUIT;");
             if(!rs.next()){
                 rs.beforeFirst();
                 Produit.compteurProd = rs.getInt("n");
+                System.out.println("Max id_produit ="+Produit.compteurProd);
+            }
+            
+            rs = s.executeQuery("SELECT MAX(id_ingredient) AS n FROM INGREDIENT;");
+            if(!rs.next()){
+                rs.beforeFirst();
+                Ingredient.compteurIng = rs.getInt("n");
+                System.out.println("Max id_ingredient ="+Ingredient.compteurIng);
             }
             
         } catch (SQLException ex) {
@@ -197,6 +205,149 @@ public class MainWindowController implements Initializable {
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Commandes">
     @FXML
     public void addCmd(){
+         Stage stage = new Stage();
+        List<TextField> list = new ArrayList<>();
+        
+        stage.setTitle("Client");
+        
+        
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(0, 0, 0, 0));
+
+        
+        Text scenetitle = new Text("Nouveau client");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        grid.add(scenetitle, 0, 0, 4, 1);
+        scenetitle.setId("title");
+        
+        
+        Label nameL = new Label("Nom :");
+        grid.add(nameL, 0, 2);
+
+        TextField name = new TextField();
+        grid.add(name, 1, 2,3, 1);
+        list.add(name);
+        
+        Label telL = new Label("Tel :");
+        grid.add(telL, 0, 3);
+
+        TextField tel = new NumberField();
+        grid.add(tel, 1, 3,3, 1);
+        list.add(tel);
+        
+        Label adresseTitle = new Label("Adresse");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
+        HBox hbAdr = new HBox(10);
+        hbAdr.setAlignment(Pos.CENTER);
+        hbAdr.getChildren().add(adresseTitle);
+        grid.add(hbAdr, 0, 5, 4, 1);
+        
+        Label numAdrL = new Label("Numero :");
+        grid.add(numAdrL, 0, 6);
+
+        TextField numAdr = new NumberField();
+        grid.add(numAdr, 1, 6);
+        list.add(numAdr);
+        
+        Label libAdrL = new Label("Rue :");
+        grid.add(libAdrL, 0, 7);
+
+        TextField libAdr = new TextField();
+        grid.add(libAdr, 1, 7,3, 1);
+        list.add(libAdr);
+        
+        Label cdeAdrL = new Label("Code Postal :");
+        grid.add(cdeAdrL, 0, 8);
+
+        TextField cdeAdr = new NumberField();
+        grid.add(cdeAdr, 1, 8);
+        list.add(cdeAdr);
+        
+        Label villeAdrL = new Label("Ville :");
+        grid.add(villeAdrL, 0, 9);
+
+        TextField villeAdr = new TextField();
+        grid.add(villeAdr, 1, 9,3,1);
+        list.add(villeAdr);
+       
+        
+        
+        Button cancelBtn = new Button("Annuler");        
+        Button validBtn = new Button("Valider");
+        
+        
+        final Text actiontarget = new Text();
+        grid.add(actiontarget, 1, 11,2,1);
+        actiontarget.setId("actiontarget");
+
+        HBox hbBtn = new HBox(10);
+        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hbBtn.getChildren().add(validBtn);
+        grid.add(hbBtn, 3, 11);
+        grid.add(cancelBtn, 0, 11);
+
+        
+        validBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                int cpt = 0;
+                Statement stmt = null; 
+                
+                
+                for (TextField t : list)
+                    if(t.getText().isEmpty()){
+                        cpt++;
+                        t.setStyle("-fx-border-color: firebrick;");
+                    }else{
+                        t.setStyle("-fx-border-color: white;");
+                    }
+                    
+                if(cpt == 0){
+                    try {
+                        Adresse adr = new Adresse(Integer.parseInt(numAdr.getText()), libAdr.getText(), Integer.parseInt(cdeAdr.getText()), villeAdr.getText());
+                        Personne personne = new Personne(name.getText(), Integer.parseInt(tel.getText()), adr);
+                        
+                        stmt = connection.createStatement();
+                        stmt.executeUpdate(adr.getCreationQuery());
+                        stmt.executeUpdate(personne.getCreationQuery());
+                        stage.close();
+                        
+                    } catch (SQLException ex) {
+                        System.err.println(ex.getMessage());
+                        actiontarget.setText("Echec à l'insertion SQL");
+                        actiontarget.setFill(Color.FIREBRICK);
+                    }finally {
+                        if (stmt != null) { 
+                            try {
+                                stmt.close();
+                            } catch (SQLException ex) {
+                                System.err.println(ex.getMessage());
+                            }
+                        }
+                    }
+                }else{
+                    actiontarget.setText("Certain champs sont vide");
+                    actiontarget.setFill(Color.FIREBRICK);
+                }
+            }
+        });
+
+        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                stage.close();
+            }
+        });
+        
+        
+        Scene scene = new Scene(grid, 400, 400);
+        scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
+        stage.setScene(scene);
+        
+        stage.showAndWait();
         refreshList();
     }
     
@@ -944,11 +1095,117 @@ public class MainWindowController implements Initializable {
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Ingredients">
     @FXML
     public void addIng(){
+         Stage stage = new Stage();
+        List<TextField> list = new ArrayList<>();
+        
+        stage.setTitle("Ingredient");
+        
+        
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+
+        
+        Label scenetitle = new Label("Nouvel ingredient");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        grid.add(scenetitle, 0, 0, 4, 2);
+        scenetitle.setId("title");
+        scenetitle.setWrapText(true);
+        
+        
+        Label nameL = new Label("Nom :");
+        grid.add(nameL, 0, 3);
+
+        TextField name = new TextField();
+        grid.add(name, 1, 3,3, 1);
+        list.add(name);
+        
+        Label qteL = new Label("Quantite :");
+        grid.add(qteL, 0, 4);
+
+        TextField qte = new NumberField();
+        grid.add(qte, 1, 4,3, 1);
+        list.add(qte);
+        
+        
+        Button cancelBtn = new Button("Annuler");        
+        Button validBtn = new Button("Valider");
+        
+        
+        final Text actiontarget = new Text();
+        grid.add(actiontarget, 1, 5,2,1);
+        actiontarget.setId("actiontarget");
+
+        HBox hbBtn = new HBox(10);
+        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hbBtn.getChildren().add(validBtn);
+        grid.add(hbBtn, 3, 5);
+        grid.add(cancelBtn, 0, 5);
+
+        
+        validBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                int cpt = 0;
+                Statement stmt = null; 
+                
+                
+                for (TextField t : list)
+                    if(t.getText().isEmpty()){
+                        cpt++;
+                        t.setStyle("-fx-border-color: firebrick;");
+                    }else{
+                        t.setStyle("-fx-border-color: white;");
+                    }
+                    
+                if(cpt == 0){
+                    try {
+                        Ingredient ingredient = new Ingredient(name.getText(), Integer.parseInt(qte.getText()));
+                        
+                        stmt = connection.createStatement();
+                        stmt.executeUpdate(ingredient.getCreationQuery());
+                        stage.close();
+                        
+                    } catch (SQLException ex) {
+                        System.err.println(ex.getMessage());
+                        actiontarget.setText("Echec à l'insertion SQL");
+                        actiontarget.setFill(Color.FIREBRICK);
+                    }finally {
+                        if (stmt != null) { 
+                            try {
+                                stmt.close();
+                            } catch (SQLException ex) {
+                                System.err.println(ex.getMessage());
+                            }
+                        }
+                    }
+                }else{
+                    actiontarget.setText("Certain champs sont vide");
+                    actiontarget.setFill(Color.FIREBRICK);
+                }
+            }
+        });
+
+        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                stage.close();
+            }
+        });
+        
+        
+        Scene scene = new Scene(grid, 350, 250);
+        scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
+        stage.setScene(scene);
+        
+        stage.showAndWait();
         refreshList();
     }
     
     @FXML
     public void modIng(){
+        
         refreshList();
     }
     
@@ -974,11 +1231,191 @@ public class MainWindowController implements Initializable {
         }
         refreshList();
     }
-    // </editor-fold>
+    
+    //</editor-fold > 
     
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Produit">
     @FXML
     public void addProd(){
+        Stage stage = new Stage();
+        List<TextField> list = new ArrayList<>();
+        List<TextField> ingList = new ArrayList<>();
+        
+        stage.setTitle("Produit");
+        
+        
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(0, 0, 0, 0));
+
+        
+        Text scenetitle = new Text("Nouveau produit");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        grid.add(scenetitle, 0, 0, 4, 1);
+        scenetitle.setId("title");
+        
+        
+        Label nameL = new Label("Nom :");
+        grid.add(nameL, 0, 2);
+
+        TextField name = new TextField();
+        grid.add(name, 1, 2,3, 1);
+        list.add(name);
+        
+        Label prixL = new Label("Prix unitaire :");
+        grid.add(prixL, 0, 3);
+
+        TextField prixProd = new TextField();
+        grid.add(prixProd, 1, 3,3, 1);
+        list.add(prixProd);
+        
+        Label qteL = new Label("Quantite :");
+        grid.add(qteL, 0, 4);
+
+        TextField qte = new NumberField();
+        grid.add(qte, 1, 4,3, 1);
+        list.add(qte);
+        
+        Label adresseTitle = new Label("Ingredient nécéssaire");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
+        HBox hbAdr = new HBox(10);
+        hbAdr.setAlignment(Pos.CENTER);
+        hbAdr.getChildren().add(adresseTitle);
+        grid.add(hbAdr, 0, 5, 4, 1);
+        
+        Label ingL = new Label("Ingredient/quantité(unite) :");
+        grid.add(ingL, 0, 6);
+        Label ingL2 = new Label("Ingredient/quantité(unite) :");
+        grid.add(ingL2, 0, 7);
+        Label ingL3 = new Label("Ingredient/quantité(unite) :");
+        grid.add(ingL3, 0, 8);
+        Label ingL4 = new Label("Ingredient/quantité(unite) :");
+        grid.add(ingL4, 0, 9);
+        Label ingL5 = new Label("Ingredient/quantité(unite) :");
+        grid.add(ingL5, 0, 10);
+        
+        
+        
+        TextField ing1 = new TextField();
+        grid.add(ing1, 1, 6);
+        list.add(ing1);
+        ingList.add(ing1);
+        
+        TextField ing2 = new TextField();
+        grid.add(ing2, 1, 7);
+        ingList.add(ing2);
+        
+        TextField ing3 = new TextField();
+        grid.add(ing3, 1, 8);
+        ingList.add(ing3);
+        
+        TextField ing4 = new TextField();
+        grid.add(ing4, 1, 9);
+        ingList.add(ing4);
+        
+        TextField ing5 = new TextField();
+        grid.add(ing5, 1, 10);
+        ingList.add(ing5);
+        
+        
+        Button cancelBtn = new Button("Annuler");        
+        Button validBtn = new Button("Valider");
+        
+        
+        final Text actiontarget = new Text();
+        grid.add(actiontarget, 1, 12,2,1);
+        actiontarget.setId("actiontarget");
+
+        HBox hbBtn = new HBox(10);
+        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hbBtn.getChildren().add(validBtn);
+        grid.add(hbBtn, 3, 12);
+        grid.add(cancelBtn, 0, 12);
+
+        
+        validBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                int cpt = 0,cptIngredient = 0;
+                Statement stmt = null; 
+                
+                
+                for (TextField t : list)
+                    if(t.getText().isEmpty()){
+                        cpt++;
+                        t.setStyle("-fx-border-color: firebrick;");
+                    }else{
+                        t.setStyle("-fx-border-color: white;");
+                    }
+                    
+                if(cpt == 0){
+                    try {
+                        for(TextField t : ingList){
+                            String s = t.getText();
+                            if(!s.isEmpty()){
+                                ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM INGREDIENT WHERE nom_ingredient="+s.split("/")[0]+";");
+                                if(rs.next() && rs.getInt(s) == 0){
+                                    t.setStyle("-fx-border-color: firebrick;");
+                                    cptIngredient++;
+                                }
+                            }
+                        }
+                        if(cptIngredient == 0){
+                            Produit produit = new Produit(name.getText(),Float.parseFloat(prixProd.getText()),Integer.parseInt(qte.getText()));
+                            stmt.executeUpdate(produit.getCreationQuery());
+                            for(TextField t : ingList){
+                                String s = t.getText();
+                                if(!s.isEmpty()){
+                                    ResultSet rs = stmt.executeQuery("SELECT id_ingredient FROM INGREDIENT WHERE nom_ingredient="+s.split("/")[0]+";");
+                                    stmt.executeUpdate("INSERT INTO NECESSITER VALUES("+rs.getInt("id_ingredient")+","+produit.getId()+","+s.split("/")[1]+");");
+                                }
+                            }
+                            
+                        }else{
+                            actiontarget.setText("Ingredient inconnu !");
+                            actiontarget.setFill(Color.FIREBRICK);
+                            return;
+                        }
+                        
+                        stmt = connection.createStatement();
+                        //stmt.executeUpdate(personne.getCreationQuery());
+                        stage.close();
+                        
+                    } catch (SQLException ex) {
+                        System.err.println(ex.getMessage());
+                        actiontarget.setText("Echec à l'insertion SQL");
+                        actiontarget.setFill(Color.FIREBRICK);
+                    }finally {
+                        if (stmt != null) { 
+                            try {
+                                stmt.close();
+                            } catch (SQLException ex) {
+                                System.err.println(ex.getMessage());
+                            }
+                        }
+                    }
+                }else{
+                    actiontarget.setText("Certain champs sont vide");
+                    actiontarget.setFill(Color.FIREBRICK);
+                }
+            }
+        });
+
+        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                stage.close();
+            }
+        });
+        
+        
+        Scene scene = new Scene(grid, 500, 425);
+        scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
+        stage.setScene(scene);
+        
+        stage.showAndWait();
         refreshList();
     }
     
@@ -1013,6 +1450,7 @@ public class MainWindowController implements Initializable {
     
     
     
+    // <editor-fold defaultstate="collapsed" desc="Fonction récupération des listes">
     public ObservableList<String> selectAllPersonne(){
         
         ObservableList<String> lPersonne = FXCollections.observableArrayList();
@@ -1055,15 +1493,81 @@ public class MainWindowController implements Initializable {
         }
         
         return l;
-    }  
+    }
     
+    public ObservableList<String> selectAllCommande(){
+        
+        ObservableList<String> l = FXCollections.observableArrayList();
+        
+        String query = "SELECT id_commande, date_cmd, prix_total FROM COMMANDE";
+        
+        try (Statement stmt = connection.createStatement()) {
+
+            ResultSet rs = stmt.executeQuery(query);
+
+            while (rs.next()) {
+                Commande c  = new Commande(rs.getInt("id_commande"),format.fromString(rs.getString("date_cmd")), rs.getFloat("prix_total"));
+                l.add(c.toString());
+            }
+            
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        
+        return l;
+    }
+    
+    public ObservableList<String> selectAllIngredient(){
+        
+        ObservableList<String> l = FXCollections.observableArrayList();
+        
+        String query = "SELECT id_ingredient, nom_ingredient, qte_disponible FROM INGREDIENT";
+        
+        try (Statement stmt = connection.createStatement()) {
+
+            ResultSet rs = stmt.executeQuery(query);
+
+            while (rs.next()) {
+                Ingredient i  = new Ingredient(rs.getInt("id_ingredient"),rs.getString("nom_ingredient"), rs.getInt("qte_disponible"));
+                l.add(i.toString());
+            }
+            
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        
+        return l;
+    }
+    
+    public ObservableList<String> selectAllProduit(){
+        
+        ObservableList<String> l = FXCollections.observableArrayList();
+        
+        String query = "SELECT id_produit, nom_prod, prix_prod,qte_prod FROM PRODUIT";
+        
+        try (Statement stmt = connection.createStatement()) {
+
+            ResultSet rs = stmt.executeQuery(query);
+
+            while (rs.next()) {
+                Produit p  = new Produit(rs.getInt("id_prod"),rs.getString("nom_prod"),rs.getFloat("prix_prod"),rs.getInt("qte_prod"));
+                l.add(p.toString());
+            }
+            
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        
+        return l;
+    }
+    //</editor-fold > 
     
     public void refreshList(){
-        ObservableList<String> lCommande = FXCollections.observableArrayList();
+        ObservableList<String> lCommande = selectAllCommande();
         ObservableList<String> lPersonne = selectAllPersonne();
         ObservableList<String> lFournisseur = selectAllFournisseur();
-        ObservableList<String> lIngredient = FXCollections.observableArrayList();
-        ObservableList<String> lProduit = FXCollections.observableArrayList();
+        ObservableList<String> lIngredient = selectAllIngredient();
+        ObservableList<String> lProduit = selectAllProduit();
         
         cmdList.setItems(lCommande);
         fourList.setItems(lFournisseur);

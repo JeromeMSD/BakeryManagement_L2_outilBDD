@@ -22,9 +22,24 @@ public class Produit {
         this.prix=prix;
         this.qte=qte;
     }
+
+    Produit(int aInt, String string, float aFloat, int aInt0) {
+        this.idProduit = aInt;
+        this.nomProd = string;
+        this.prix = aFloat;
+        this.qte = aInt0;
+    }
     
     @Override
     public String toString () {
         return idProduit+": "+nomProd+"->"+prix;
+    }
+
+    public String getCreationQuery() {
+        return "INSERT INTO PRODUIT VALUES("+this.getId()+",'"+this.nomProd+"',"+this.prix+","+this.qte+");";
+    }
+    
+    public int getId() {
+        return this.idProduit;
     }
 }
