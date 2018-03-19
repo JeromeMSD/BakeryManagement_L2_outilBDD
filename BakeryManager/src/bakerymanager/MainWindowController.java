@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +25,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
@@ -38,7 +36,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.util.converter.DateTimeStringConverter;
 
 
 /**
@@ -60,7 +57,6 @@ public class MainWindowController implements Initializable {
     private ListView prodList;
     
     private final Connection connection;
-    private DateTimeStringConverter format2 = new DateTimeStringConverter(Locale.FRANCE,"YYYY-MM-dd");
     
     MainWindowController(Connection conn) {
         this.connection = conn;
@@ -114,17 +110,18 @@ public class MainWindowController implements Initializable {
                     
 
                     s.executeUpdate("DELETE FROM FOURNISSEUR;");
+                    s.executeUpdate("DELETE FROM COMMANDE;");
                     s.executeUpdate("DELETE FROM PERSONNE;");
                     s.executeUpdate("DELETE FROM ADRESSE;");
                     
                     s.executeUpdate("DELETE FROM PRODUIT;");
                     s.executeUpdate("DELETE FROM INGREDIENT;");
-                    s.executeUpdate("DELETE FROM COMMANDE;");
                     s.executeUpdate("DELETE FROM FOURNIR;");
                     s.executeUpdate("DELETE FROM NECESSITER;");
                     s.executeUpdate("DELETE FROM CONSTITUER;");
                     
                     stage.close();
+                    initIds();
                     refreshList();
                 } catch (SQLException ex) {
                     Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
@@ -192,7 +189,7 @@ public class MainWindowController implements Initializable {
             }
             
         } catch (SQLException ex) {
-            Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Error in counter initialisation");
         }
         
     }
@@ -206,7 +203,7 @@ public class MainWindowController implements Initializable {
          Stage stage = new Stage();
         List<TextField> list = new ArrayList<>();
         
-        stage.setTitle("Ingredient");
+        stage.setTitle("Commande");
         
         
         GridPane grid = new GridPane();
@@ -241,6 +238,7 @@ public class MainWindowController implements Initializable {
         TextField qte = new TextField();
         grid.add(qte, 1, 5,2, 1);
         list.add(qte);
+        qte.setEditable(false);
         
         Label ingL = new Label(" Produit (prod1/qte1;prod2/qte2) :");
         grid.add(ingL, 0, 6);
@@ -293,9 +291,9 @@ public class MainWindowController implements Initializable {
                         if(rs.getInt("n") != 0){
                             
                             String[] str = prods.getText().split(";");
-                            for(String s : str){
-                                if(!s.isEmpty()){
-                                    rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM PRODUIT WHERE nom_prod='"+s.split("/")[0]+"' AND qte_prod>"+Integer.parseInt(s.split("/")[1])*Integer.parseInt(qte.getText())+";");
+                            for(int i=0;i<str.length;i++){
+                                if(!str[i].isEmpty()){
+                                    rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM PRODUIT WHERE nom_prod='"+str[i].split("/")[0]+"' AND qte_prod>"+Integer.parseInt(str[i].split("/")[1])*Integer.parseInt(qte.getText())+";");
                                     rs.next();
                                     if(rs.getInt("n") == 0){
                                         prods.setStyle("-fx-border-color: firebrick;");
@@ -309,17 +307,23 @@ public class MainWindowController implements Initializable {
                             
                             rs = stmt.executeQuery("SELECT id_personne FROM PERSONNE WHERE nom_personne='"+client.getText()+"';");
                             rs.next();
-                            Commande commande = new Commande(format2.fromString(date.getText()),rs.getInt("id_personne"));
-                            stmt.executeUpdate(commande.getCreationQuery());
-                            
+                            Commande commande = new Commande(date.getText(),rs.getInt("id_personne"));
+                            float sum = 0;
                             for(String s : str){
                                 if(!s.isEmpty()){
                                     rs = stmt.executeQuery("SELECT * FROM PRODUIT WHERE nom_prod='"+s.split("/")[0]+"';");
                                     int qte = Integer.parseInt(s.split("/")[1]);
                                     rs.next();
-                                    stmt.executeUpdate("INSERT INTO CONSTITUER VALUES("+commande.getId()+","+rs.getInt("id_produit")+","+qte+","+qte*rs.getFloat("prix_prod")+");");
+                                    int idProd = rs.getInt("id_produit");
+                                    float cur = qte*rs.getFloat("prix_prod");
+                                    stmt.executeUpdate("INSERT INTO CONSTITUER VALUES("+commande.getId()+","+idProd+","+qte+","+cur+");");
+                                    stmt.executeUpdate("UPDATE PRODUIT SET qte_prod=qte_prod-"+Integer.parseInt(s.split("/")[1])+" WHERE id_produit="+idProd);
+                                    sum+=cur;
                                 }
                             }
+                            commande.setPrixTotal(sum);
+                            stmt.executeUpdate(commande.getCreationQuery());
+                            
                             }else{
                                 client.setStyle("-fx-border-color: firebrick;");
                                 actiontarget.setText("Client inconnu !");
@@ -1383,10 +1387,13 @@ public class MainWindowController implements Initializable {
             try{
                 st = connection.createStatement();
 
-                ResultSet rs = st.executeQuery("SELECT * FROM INGREDIENT WHERE id_ingredient="+Integer.parseInt(id)+";");
+                ResultSet rs = st.executeQuery("SELECT * FROM INGREDIENT natural join FOURNIR natural join FOURNISSEUR WHERE id_ingredient="+Integer.parseInt(id)+";");
                 rs.next();
                 name.setText(rs.getString("nom_ingredient"));
+                four.setText(rs.getString("nom_fournisseur"));
                 qte.setText(rs.getInt("qte_disponible")+"");
+                
+                
             } catch (SQLException ex) {
                 System.err.println(ex.getMessage());
             }finally{
@@ -1575,7 +1582,9 @@ public class MainWindowController implements Initializable {
                                 if(!s.isEmpty()){
                                     rs = stmt.executeQuery("SELECT id_ingredient FROM INGREDIENT WHERE nom_ingredient='"+s.split("/")[0]+"';");
                                     rs.next();
-                                    stmt.executeUpdate("INSERT INTO NECESSITER VALUES("+rs.getInt("id_ingredient")+","+produit.getId()+","+s.split("/")[1]+");");
+                                    int idIng = rs.getInt("id_ingredient");
+                                    stmt.executeUpdate("INSERT INTO NECESSITER VALUES("+idIng+","+produit.getId()+","+s.split("/")[1]+");");
+                                    stmt.executeUpdate("UPDATE INGREDIENT SET qte_disponible=qte_disponible-"+Integer.parseInt(s.split("/")[1])*produit.getQuantite()+" WHERE id_ingredient="+idIng);
                                 }
                             }
                             
@@ -1780,7 +1789,7 @@ public class MainWindowController implements Initializable {
                                 }
 
                             }else{
-                                actiontarget.setText("Ingredient inconnu !");
+                                actiontarget.setText("Ingredient inconnu ou insuffisant !");
                                 actiontarget.setFill(Color.FIREBRICK);
                                 return;
                             }
@@ -1937,7 +1946,7 @@ public class MainWindowController implements Initializable {
             ResultSet rs = stmt.executeQuery(query);
 
             while (rs.next()) {
-                Commande c  = new Commande(rs.getInt("id_commande"),format2.fromString(rs.getString("date_cmd")),rs.getFloat("prix_total"));
+                Commande c  = new Commande(rs.getInt("id_commande"),rs.getString("date_cmd"),rs.getFloat("prix_total"));
                 l.add(c.toString());
             }
             

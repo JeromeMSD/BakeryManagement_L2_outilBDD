@@ -5,12 +5,6 @@
  */
 package bakerymanager;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import javafx.scene.control.DatePicker;
-import javafx.util.converter.DateTimeStringConverter;
-
 /**
  *
  * @author Nicolas
@@ -19,33 +13,25 @@ public class Commande {
     public static int compteurCom = 0;
     private int idCommande;
     private int personne;
-    private Date date;
+    private String date;
     private float prixTotal=0;
-    private DateTimeStringConverter format = new DateTimeStringConverter(Locale.FRANCE,"YYYY-MM-dd");
-    private HashMap<Produit,Integer> commande;
-    
-    public Commande(Date d,HashMap<Produit, Integer> commande){
-        compteurCom++;
-        this.idCommande = compteurCom;
-        this.date=d;
-        this.commande=commande;
-        /* Doit parcourir la commande(liste d'ingredient + prix) pour en calculer son prix total pour l'instancier */
-    }
 
-    public Commande(int aInt, Date fromString, float aFloat) {
+    public Commande(int aInt, String fromString, float aFloat) {
         this.idCommande = aInt;
         this.date = fromString;
         this.prixTotal = aFloat;
     }
 
-    Commande(Date fromString, int text) {
+    Commande(String fromString, int text) {
         compteurCom++;
         this.idCommande = compteurCom;
         this.date = fromString;
         this.personne = text;
     }
     
-    
+    public void setPrixTotal(float f){
+        this.prixTotal = f;
+    }
     
     @Override
     public String toString () {
@@ -53,7 +39,7 @@ public class Commande {
     }
 
     String getCreationQuery() {
-        return "INSERT INTO COMMANDE VALUES("+this.idCommande+","+this.personne+",'"+format.toString(this.date)+"',"+this.prixTotal+");";
+        return "INSERT INTO COMMANDE VALUES("+this.idCommande+","+this.personne+",'"+this.date+"',"+this.prixTotal+");";
     }
 
     int getId() {

@@ -32,7 +32,7 @@ public class Produit {
     
     @Override
     public String toString () {
-        return idProduit+": "+nomProd+"->"+prix;
+        return idProduit+": "+nomProd+"("+qte+") ->"+prix;
     }
 
     public String getCreationQuery() {
@@ -41,5 +41,9 @@ public class Produit {
     
     public int getId() {
         return this.idProduit;
+    }
+
+    int getQuantite() {
+        return this.qte;
     }
 }
