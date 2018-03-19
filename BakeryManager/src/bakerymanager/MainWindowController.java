@@ -168,7 +168,7 @@ public class MainWindowController implements Initializable {
             }
             
             System.out.println("max id keeped : " + maxIdPersonne);
-            Personne.compteurPers = maxIdPersonne; // Peut etre remplacer par methode de classe ?
+            Personne.compteurPers = maxIdPersonne;
             
             rs = s.executeQuery("SELECT MAX(id_commande) AS n FROM COMMANDE;");
             if(rs.next()){
@@ -194,922 +194,6 @@ public class MainWindowController implements Initializable {
         
     }
     
-    
-    
-    // <editor-fold defaultstate="collapsed" desc="Fonction pour les Commandes">
-    @FXML
-    public void addCmd(){
-         // <editor-fold defaultstate="collapsed" desc="Interface Utilisateur">
-         Stage stage = new Stage();
-        List<TextField> list = new ArrayList<>();
-        
-        stage.setTitle("Commande");
-        
-        
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        
-        
-        Text scenetitle = new Text(" Nouvelle Commande");
-        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        grid.add(scenetitle, 0, 0, 4, 2);
-        scenetitle.setId("title");
-        
-        
-        Label dateL = new Label(" Date (YYYY-MM-dd):");
-        grid.add(dateL, 0, 3);
-
-        TextField date = new TextField();
-        grid.add(date, 1, 3,2, 1);
-        list.add(date);
-        
-        Label clientL = new Label(" Nom client :");
-        grid.add(clientL, 0, 4);
-
-        TextField client = new TextField();
-        grid.add(client, 1, 4,2, 1);
-        list.add(client);
-        
-        Label qteL = new Label(" Prix Total :");
-        grid.add(qteL, 0, 5);
-
-        TextField qte = new TextField();
-        grid.add(qte, 1, 5,2, 1);
-        list.add(qte);
-        qte.setEditable(false);
-        
-        Label ingL = new Label(" Produit (prod1/qte1;prod2/qte2) :");
-        grid.add(ingL, 0, 6);
-        
-        TextArea prods = new TextArea();
-        grid.add(prods, 1, 6,2,5);
-        
-        Button cancelBtn = new Button("Annuler");        
-        Button validBtn = new Button("Valider");
-        
-        
-        final Text actiontarget = new Text();
-        grid.add(actiontarget, 1, 11,2,1);
-        actiontarget.setId("actiontarget");
-
-        HBox hbBtn = new HBox(10);
-        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
-        hbBtn.getChildren().add(validBtn);
-        grid.add(hbBtn, 3, 11);
-        grid.add(cancelBtn, 0, 11);
-
-        //</editor_fold>
-        
-        validBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                int cpt = 0;
-                Statement stmt = null; 
-                
-                
-                for (TextField t : list)
-                    if(t.getText().isEmpty()){
-                        cpt++;
-                        t.setStyle("-fx-border-color: firebrick;");
-                    }else{
-                        t.setStyle("-fx-border-color: white;");
-                    }
-                if(prods.getText().isEmpty())
-                    cpt++;
-                    
-                if(cpt == 0){
-                    try {
-                        Ingredient ingredient;
-                        ResultSet rs;
-                        stmt = connection.createStatement();
-                        
-                        rs = stmt.executeQuery("SELECT count(*) AS n FROM PERSONNE WHERE nom_personne='"+client.getText()+"';");
-                        rs.next();
-                        
-                        if(rs.getInt("n") != 0){
-                            
-                            String[] str = prods.getText().split(";");
-                            for(int i=0;i<str.length;i++){
-                                if(!str[i].isEmpty()){
-                                    rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM PRODUIT WHERE nom_prod='"+str[i].split("/")[0]+"' AND qte_prod>"+Integer.parseInt(str[i].split("/")[1])*Integer.parseInt(qte.getText())+";");
-                                    rs.next();
-                                    if(rs.getInt("n") == 0){
-                                        prods.setStyle("-fx-border-color: firebrick;");
-                                        actiontarget.setText("Produit inconnu ou insuffisant !");
-                                        actiontarget.setFill(Color.FIREBRICK);
-                                        return;
-                                    }
-                                }
-                            }
-                            
-                            
-                            rs = stmt.executeQuery("SELECT id_personne FROM PERSONNE WHERE nom_personne='"+client.getText()+"';");
-                            rs.next();
-                            Commande commande = new Commande(date.getText(),rs.getInt("id_personne"));
-                            float sum = 0;
-                            for(String s : str){
-                                if(!s.isEmpty()){
-                                    rs = stmt.executeQuery("SELECT * FROM PRODUIT WHERE nom_prod='"+s.split("/")[0]+"';");
-                                    int qte = Integer.parseInt(s.split("/")[1]);
-                                    rs.next();
-                                    int idProd = rs.getInt("id_produit");
-                                    float cur = qte*rs.getFloat("prix_prod");
-                                    stmt.executeUpdate("INSERT INTO CONSTITUER VALUES("+commande.getId()+","+idProd+","+qte+","+cur+");");
-                                    stmt.executeUpdate("UPDATE PRODUIT SET qte_prod=qte_prod-"+Integer.parseInt(s.split("/")[1])+" WHERE id_produit="+idProd);
-                                    sum+=cur;
-                                }
-                            }
-                            commande.setPrixTotal(sum);
-                            stmt.executeUpdate(commande.getCreationQuery());
-                            
-                            }else{
-                                client.setStyle("-fx-border-color: firebrick;");
-                                actiontarget.setText("Client inconnu !");
-                                actiontarget.setFill(Color.FIREBRICK);
-                                return;
-                            }
-                        
-                        stage.close();
-                        
-                    } catch (SQLException ex) {
-                        System.err.println(ex.getMessage());
-                        actiontarget.setText("Echec à l'insertion SQL");
-                        actiontarget.setFill(Color.FIREBRICK);
-                    }finally {
-                        if (stmt != null) { 
-                            try {
-                                stmt.close();
-                            } catch (SQLException ex) {
-                                System.err.println(ex.getMessage());
-                            }
-                        }
-                    }
-                }else{
-                    actiontarget.setText("Certain champs sont vide");
-                    actiontarget.setFill(Color.FIREBRICK);
-                }
-            }
-        });
-
-        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                stage.close();
-            }
-        });
-        
-        
-        Scene scene = new Scene(grid, 550, 350);
-        scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
-        stage.setScene(scene);
-        
-        stage.showAndWait();
-        refreshList();
-    }
-    
-    @FXML
-    public void modCmd(){
-        refreshList();
-    }
-    
-    @FXML
-    public void delCmd(){
-        String s = (String) cmdList.getSelectionModel().getSelectedItem();
-        if(s != null){
-            s = s.split(":")[0];
-            Statement stmt = null;
-
-            try{
-                stmt = connection.createStatement();
-                stmt.executeUpdate("DELETE FROM COMMANDE WHERE id_commande="+s);
-                stmt.executeUpdate("DELETE FROM CONSTITUER WHERE id_commande="+s);
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-            }finally{
-                try {
-                    stmt.close();
-                } catch (SQLException ex) {
-                    System.err.println(ex.getMessage());
-                }
-            }
-        }
-        refreshList();
-    }
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc="Fonction pour les Fournisseurs">
-    @FXML
-    public void addFour(){
-        Stage stage = new Stage();
-        List<TextField> list = new ArrayList<>();
-        
-        stage.setTitle("Fournisseur");
-        
-        
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(0, 0, 0, 0));
-
-        
-        Text scenetitle = new Text("Nouveau fournisseur");
-        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        grid.add(scenetitle, 0, 0, 4, 1);
-        scenetitle.setId("title");
-        
-        
-        Label nameL = new Label("Nom :");
-        grid.add(nameL, 0, 2);
-
-        TextField name = new TextField();
-        grid.add(name, 1, 2,3, 1);
-        list.add(name);
-        
-        Label telL = new Label("Tel :");
-        grid.add(telL, 0, 3);
-
-        TextField tel = new NumberField();
-        grid.add(tel, 1, 3,3, 1);
-        list.add(tel);
-        
-        Label adresseTitle = new Label("Adresse");
-        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
-        HBox hbAdr = new HBox(10);
-        hbAdr.setAlignment(Pos.CENTER);
-        hbAdr.getChildren().add(adresseTitle);
-        grid.add(hbAdr, 0, 5, 4, 1);
-        
-        Label numAdrL = new Label("Numero :");
-        grid.add(numAdrL, 0, 6);
-
-        TextField numAdr = new NumberField();
-        grid.add(numAdr, 1, 6);
-        list.add(numAdr);
-        
-        Label libAdrL = new Label("Rue :");
-        grid.add(libAdrL, 0, 7);
-
-        TextField libAdr = new TextField();
-        grid.add(libAdr, 1, 7,3, 1);
-        list.add(libAdr);
-        
-        Label cdeAdrL = new Label("Code Postal :");
-        grid.add(cdeAdrL, 0, 8);
-
-        TextField cdeAdr = new NumberField();
-        grid.add(cdeAdr, 1, 8);
-        list.add(cdeAdr);
-        
-        Label villeAdrL = new Label("Ville :");
-        grid.add(villeAdrL, 0, 9);
-
-        TextField villeAdr = new TextField();
-        grid.add(villeAdr, 1, 9,3,1);
-        list.add(villeAdr);
-       
-        
-        
-        Button cancelBtn = new Button("Annuler");        
-        Button validBtn = new Button("Valider");
-        
-        
-        final Text actiontarget = new Text();
-        grid.add(actiontarget, 1, 11,2,1);
-        actiontarget.setId("actiontarget");
-
-        HBox hbBtn = new HBox(10);
-        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
-        hbBtn.getChildren().add(validBtn);
-        grid.add(hbBtn, 3, 11);
-        grid.add(cancelBtn, 0, 11);
-
-        
-        validBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                int cpt = 0;
-                Statement stmt = null; 
-                
-                
-                for (TextField t : list)
-                    if(t.getText().isEmpty()){
-                        cpt++;
-                        t.setStyle("-fx-border-color: firebrick;");
-                    }else{
-                        t.setStyle("-fx-border-color: white;");
-                    }
-                    
-                if(cpt == 0){
-                    try {
-                        Adresse adr = new Adresse(Integer.parseInt(numAdr.getText()), libAdr.getText(), Integer.parseInt(cdeAdr.getText()), villeAdr.getText());
-                        Fournisseur fournisseur = new Fournisseur(name.getText(), Integer.parseInt(tel.getText()), adr);
-                        
-                        stmt = connection.createStatement();
-                        stmt.executeUpdate(adr.getCreationQuery());
-                        stmt.executeUpdate(fournisseur.getCreationQuery());
-                        stage.close();
-                        
-                    } catch (SQLException ex) {
-                        System.err.println(ex.getMessage());
-                        actiontarget.setText("Echec à l'insertion SQL");
-                        actiontarget.setFill(Color.FIREBRICK);
-                    }finally {
-                        if (stmt != null) { 
-                            try {
-                                stmt.close();
-                            } catch (SQLException ex) {
-                                System.err.println(ex.getMessage());
-                            }
-                        }
-                    }
-                }else{
-                    actiontarget.setText("Certain champs sont vide");
-                    actiontarget.setFill(Color.FIREBRICK);
-                }
-            }
-        });
-
-        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                stage.close();
-            }
-        });
-        
-        
-        Scene scene = new Scene(grid, 400, 400);
-        scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
-        stage.setScene(scene);
-        
-        stage.showAndWait();
-        refreshList();
-    }
-    
-    @FXML
-    public void modFour(){
-        String s = (String) fourList.getSelectionModel().getSelectedItem();
-        final String id;
-        if(s != null){
-            id = s.split(":")[0];
-            Statement stmt = null;
-            
-            
-            // <editor-fold defaultstate="collapsed" desc="Interface Utilisateur pour les fournisseurs">
-            Stage stage = new Stage();
-            List<TextField> list = new ArrayList<>();
-
-            stage.setTitle("Fournisseur");
-
-
-            GridPane grid = new GridPane();
-            grid.setAlignment(Pos.CENTER);
-            grid.setHgap(10);
-            grid.setVgap(10);
-            grid.setPadding(new Insets(0, 0, 0, 0));
-
-
-            Text scenetitle = new Text("Modifier fournisseur");
-            scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-            grid.add(scenetitle, 0, 0, 4, 1);
-            scenetitle.setId("title");
-
-
-            Label nameL = new Label("Nom :");
-            grid.add(nameL, 0, 2);
-
-            TextField name = new TextField();
-            grid.add(name, 1, 2,3, 1);
-            list.add(name);
-
-            Label telL = new Label("Tel :");
-            grid.add(telL, 0, 3);
-
-            TextField tel = new NumberField();
-            grid.add(tel, 1, 3,3, 1);
-            list.add(tel);
-
-            Label adresseTitle = new Label("Adresse");
-            scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
-            HBox hbAdr = new HBox(10);
-            hbAdr.setAlignment(Pos.CENTER);
-            hbAdr.getChildren().add(adresseTitle);
-            grid.add(hbAdr, 0, 5, 4, 1);
-
-            Label numAdrL = new Label("Numero :");
-            grid.add(numAdrL, 0, 6);
-
-            TextField numAdr = new NumberField();
-            grid.add(numAdr, 1, 6);
-            list.add(numAdr);
-
-            Label libAdrL = new Label("Rue :");
-            grid.add(libAdrL, 0, 7);
-
-            TextField libAdr = new TextField();
-            grid.add(libAdr, 1, 7,3, 1);
-            list.add(libAdr);
-
-            Label cdeAdrL = new Label("Code Postal :");
-            grid.add(cdeAdrL, 0, 8);
-
-            TextField cdeAdr = new NumberField();
-            grid.add(cdeAdr, 1, 8);
-            list.add(cdeAdr);
-
-            Label villeAdrL = new Label("Ville :");
-            grid.add(villeAdrL, 0, 9);
-
-            TextField villeAdr = new TextField();
-            grid.add(villeAdr, 1, 9,3,1);
-            list.add(villeAdr);
-
-
-
-            Button cancelBtn = new Button("Annuler");        
-            Button validBtn = new Button("Valider");
-
-
-            final Text actiontarget = new Text();
-            grid.add(actiontarget, 1, 11,2,1);
-            actiontarget.setId("actiontarget");
-
-            HBox hbBtn = new HBox(10);
-            hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
-            hbBtn.getChildren().add(validBtn);
-            grid.add(hbBtn, 3, 11);
-            grid.add(cancelBtn, 0, 11);
-
-            // </editor-fold>
-
-            validBtn.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent e) {
-                    int cpt = 0;
-                    Statement stmt = null; 
-
-
-                    for (TextField t : list)
-                        if(t.getText().isEmpty()){
-                            cpt++;
-                            t.setStyle("-fx-border-color: firebrick;");
-                        }else{
-                            t.setStyle("-fx-border-color: white;");
-                        }
-
-                    if(cpt == 0){
-                        try {
-                            stmt = connection.createStatement();
-                            stmt.executeUpdate("DELETE FROM FOURNISSEUR WHERE id_fournisseur="+Integer.parseInt(id)+";");
-                            stmt.executeUpdate("DELETE FROM ADRESSE WHERE num_rue="+Integer.parseInt(numAdr.getText())+" AND lib_rue='"+libAdr.getText()+"' AND cde_postal="+Integer.parseInt(cdeAdr.getText())+" AND ville='"+villeAdr.getText()+"';");
-                            
-                            Adresse adr = new Adresse(Integer.parseInt(numAdr.getText()), libAdr.getText(), Integer.parseInt(cdeAdr.getText()), villeAdr.getText());
-                            Fournisseur fournisseur = new Fournisseur(Integer.parseInt(id),name.getText(), Integer.parseInt(tel.getText()), adr);
-
-                            stmt.executeUpdate(adr.getCreationQuery());
-                            stmt.executeUpdate(fournisseur.getCreationQuery());
-                            stage.close();
-
-                        } catch (SQLException ex) {
-                            System.err.println(ex.getMessage());
-                            actiontarget.setText("Echec à l'insertion SQL");
-                            actiontarget.setFill(Color.FIREBRICK);
-                        }finally {
-                            if (stmt != null) { 
-                                try {
-                                    stmt.close();
-                                } catch (SQLException ex) {
-                                    System.err.println(ex.getMessage());
-                                }
-                            }
-                        }
-                    }else{
-                        actiontarget.setText("Certain champs sont vide");
-                        actiontarget.setFill(Color.FIREBRICK);
-                    }
-                }
-            });
-
-            cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent e) {
-                    stage.close();
-                }
-            });
-            
-            try{
-                stmt = connection.createStatement();
-                
-                ResultSet rs = stmt.executeQuery("SELECT * FROM FOURNISSEUR WHERE id_fournisseur="+Integer.parseInt(id)+";");
-                rs.next();
-                name.setText(rs.getString("nom_fournisseur"));
-                tel.setText(rs.getInt("tel_fournisseur")+"");
-                numAdr.setText(rs.getInt("num_rue")+"");
-                libAdr.setText(rs.getString("lib_rue"));
-                cdeAdr.setText(rs.getInt("cde_postal")+"");
-                villeAdr.setText(rs.getString("ville"));
-                
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-            }finally{
-                try {
-                    stmt.close();
-                } catch (SQLException ex) {
-                    System.err.println(ex.getMessage());
-                }
-            }
-            
-            Scene scene = new Scene(grid, 400, 400);
-            scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
-            stage.setScene(scene);
-
-            stage.showAndWait();
-            refreshList();
-        }
-        refreshList();
-    }
-    
-    @FXML
-    public void delFour(){
-        String s = (String) fourList.getSelectionModel().getSelectedItem();
-        if(s != null){
-            s = s.split(":")[0];
-            Statement stmt = null;
-
-            try{
-                stmt = connection.createStatement();
-                stmt.executeUpdate("DELETE FROM FOURNISSEUR WHERE id_fournisseur="+s);
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-            }finally{
-                try {
-                    stmt.close();
-                } catch (SQLException ex) {
-                    System.err.println(ex.getMessage());
-                }
-            }
-        }
-        refreshList();
-    }
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc="Fonction pour les CLient">
-    @FXML
-    public void addClient(){
-        Stage stage = new Stage();
-        List<TextField> list = new ArrayList<>();
-        
-        stage.setTitle("Client");
-        
-        
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(0, 0, 0, 0));
-
-        
-        Text scenetitle = new Text("Nouveau client");
-        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        grid.add(scenetitle, 0, 0, 4, 1);
-        scenetitle.setId("title");
-        
-        
-        Label nameL = new Label("Nom :");
-        grid.add(nameL, 0, 2);
-
-        TextField name = new TextField();
-        grid.add(name, 1, 2,3, 1);
-        list.add(name);
-        
-        Label telL = new Label("Tel :");
-        grid.add(telL, 0, 3);
-
-        TextField tel = new NumberField();
-        grid.add(tel, 1, 3,3, 1);
-        list.add(tel);
-        
-        Label adresseTitle = new Label("Adresse");
-        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
-        HBox hbAdr = new HBox(10);
-        hbAdr.setAlignment(Pos.CENTER);
-        hbAdr.getChildren().add(adresseTitle);
-        grid.add(hbAdr, 0, 5, 4, 1);
-        
-        Label numAdrL = new Label("Numero :");
-        grid.add(numAdrL, 0, 6);
-
-        TextField numAdr = new NumberField();
-        grid.add(numAdr, 1, 6);
-        list.add(numAdr);
-        
-        Label libAdrL = new Label("Rue :");
-        grid.add(libAdrL, 0, 7);
-
-        TextField libAdr = new TextField();
-        grid.add(libAdr, 1, 7,3, 1);
-        list.add(libAdr);
-        
-        Label cdeAdrL = new Label("Code Postal :");
-        grid.add(cdeAdrL, 0, 8);
-
-        TextField cdeAdr = new NumberField();
-        grid.add(cdeAdr, 1, 8);
-        list.add(cdeAdr);
-        
-        Label villeAdrL = new Label("Ville :");
-        grid.add(villeAdrL, 0, 9);
-
-        TextField villeAdr = new TextField();
-        grid.add(villeAdr, 1, 9,3,1);
-        list.add(villeAdr);
-       
-        
-        
-        Button cancelBtn = new Button("Annuler");        
-        Button validBtn = new Button("Valider");
-        
-        
-        final Text actiontarget = new Text();
-        grid.add(actiontarget, 1, 11,2,1);
-        actiontarget.setId("actiontarget");
-
-        HBox hbBtn = new HBox(10);
-        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
-        hbBtn.getChildren().add(validBtn);
-        grid.add(hbBtn, 3, 11);
-        grid.add(cancelBtn, 0, 11);
-
-        
-        validBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                int cpt = 0;
-                Statement stmt = null; 
-                
-                
-                for (TextField t : list)
-                    if(t.getText().isEmpty()){
-                        cpt++;
-                        t.setStyle("-fx-border-color: firebrick;");
-                    }else{
-                        t.setStyle("-fx-border-color: white;");
-                    }
-                    
-                if(cpt == 0){
-                    try {
-                        Adresse adr = new Adresse(Integer.parseInt(numAdr.getText()), libAdr.getText(), Integer.parseInt(cdeAdr.getText()), villeAdr.getText());
-                        Personne personne = new Personne(name.getText(), Integer.parseInt(tel.getText()), adr);
-                        
-                        stmt = connection.createStatement();
-                        stmt.executeUpdate(adr.getCreationQuery());
-                        stmt.executeUpdate(personne.getCreationQuery());
-                        stage.close();
-                        
-                    } catch (SQLException ex) {
-                        System.err.println(ex.getMessage());
-                        actiontarget.setText("Echec à l'insertion SQL");
-                        actiontarget.setFill(Color.FIREBRICK);
-                    }finally {
-                        if (stmt != null) { 
-                            try {
-                                stmt.close();
-                            } catch (SQLException ex) {
-                                System.err.println(ex.getMessage());
-                            }
-                        }
-                    }
-                }else{
-                    actiontarget.setText("Certain champs sont vide");
-                    actiontarget.setFill(Color.FIREBRICK);
-                }
-            }
-        });
-
-        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                stage.close();
-            }
-        });
-        
-        
-        Scene scene = new Scene(grid, 400, 400);
-        scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
-        stage.setScene(scene);
-        
-        stage.showAndWait();
-        refreshList();
-    }
-    
-    @FXML
-    public void modClient(){
-        String s = (String) clientList.getSelectionModel().getSelectedItem();
-        final String id;
-        if(s != null){
-            id = s.split(":")[0];
-            Statement stmt = null;
-            
-            
-            // <editor-fold defaultstate="collapsed" desc="Interface Utilisateur pour les personnes">
-            Stage stage = new Stage();
-            List<TextField> list = new ArrayList<>();
-
-            stage.setTitle("Client");
-
-
-            GridPane grid = new GridPane();
-            grid.setAlignment(Pos.CENTER);
-            grid.setHgap(10);
-            grid.setVgap(10);
-            grid.setPadding(new Insets(0, 0, 0, 0));
-
-
-            Text scenetitle = new Text("Modifier client");
-            scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-            grid.add(scenetitle, 0, 0, 4, 1);
-            scenetitle.setId("title");
-
-
-            Label nameL = new Label("Nom :");
-            grid.add(nameL, 0, 2);
-
-            TextField name = new TextField();
-            grid.add(name, 1, 2,3, 1);
-            list.add(name);
-
-            Label telL = new Label("Tel :");
-            grid.add(telL, 0, 3);
-
-            TextField tel = new NumberField();
-            grid.add(tel, 1, 3,3, 1);
-            list.add(tel);
-
-            Label adresseTitle = new Label("Adresse");
-            scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
-            HBox hbAdr = new HBox(10);
-            hbAdr.setAlignment(Pos.CENTER);
-            hbAdr.getChildren().add(adresseTitle);
-            grid.add(hbAdr, 0, 5, 4, 1);
-
-            Label numAdrL = new Label("Numero :");
-            grid.add(numAdrL, 0, 6);
-
-            TextField numAdr = new NumberField();
-            grid.add(numAdr, 1, 6);
-            list.add(numAdr);
-
-            Label libAdrL = new Label("Rue :");
-            grid.add(libAdrL, 0, 7);
-
-            TextField libAdr = new TextField();
-            grid.add(libAdr, 1, 7,3, 1);
-            list.add(libAdr);
-
-            Label cdeAdrL = new Label("Code Postal :");
-            grid.add(cdeAdrL, 0, 8);
-
-            TextField cdeAdr = new NumberField();
-            grid.add(cdeAdr, 1, 8);
-            list.add(cdeAdr);
-
-            Label villeAdrL = new Label("Ville :");
-            grid.add(villeAdrL, 0, 9);
-
-            TextField villeAdr = new TextField();
-            grid.add(villeAdr, 1, 9,3,1);
-            list.add(villeAdr);
-
-
-
-            Button cancelBtn = new Button("Annuler");        
-            Button validBtn = new Button("Valider");
-
-
-            final Text actiontarget = new Text();
-            grid.add(actiontarget, 1, 11,2,1);
-            actiontarget.setId("actiontarget");
-
-            HBox hbBtn = new HBox(10);
-            hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
-            hbBtn.getChildren().add(validBtn);
-            grid.add(hbBtn, 3, 11);
-            grid.add(cancelBtn, 0, 11);
-
-            // </editor-fold>
-
-            validBtn.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent e) {
-                    int cpt = 0;
-                    Statement stmt = null; 
-
-
-                    for (TextField t : list)
-                        if(t.getText().isEmpty()){
-                            cpt++;
-                            t.setStyle("-fx-border-color: firebrick;");
-                        }else{
-                            t.setStyle("-fx-border-color: white;");
-                        }
-
-                    if(cpt == 0){
-                        try {
-                            stmt = connection.createStatement();
-                            stmt.executeUpdate("DELETE FROM PERSONNE WHERE id_personne="+Integer.parseInt(id)+";");
-                            stmt.executeUpdate("DELETE FROM ADRESSE WHERE num_rue="+Integer.parseInt(numAdr.getText())+" AND lib_rue='"+libAdr.getText()+"' AND cde_postal="+Integer.parseInt(cdeAdr.getText())+" AND ville='"+villeAdr.getText()+"';");
-                            
-                            Adresse adr = new Adresse(Integer.parseInt(numAdr.getText()), libAdr.getText(), Integer.parseInt(cdeAdr.getText()), villeAdr.getText());
-                            Personne personne = new Personne(Integer.parseInt(id),name.getText(), Integer.parseInt(tel.getText()), adr);
-
-                            stmt.executeUpdate(adr.getCreationQuery());
-                            stmt.executeUpdate(personne.getCreationQuery());
-                            stage.close();
-
-                        } catch (SQLException ex) {
-                            System.err.println(ex.getMessage());
-                            actiontarget.setText("Echec à l'insertion SQL");
-                            actiontarget.setFill(Color.FIREBRICK);
-                        }finally {
-                            if (stmt != null) { 
-                                try {
-                                    stmt.close();
-                                } catch (SQLException ex) {
-                                    System.err.println(ex.getMessage());
-                                }
-                            }
-                        }
-                    }else{
-                        actiontarget.setText("Certain champs sont vide");
-                        actiontarget.setFill(Color.FIREBRICK);
-                    }
-                }
-            });
-
-            cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent e) {
-                    stage.close();
-                }
-            });
-            
-            try{
-                stmt = connection.createStatement();
-                
-                ResultSet rs = stmt.executeQuery("SELECT * FROM PERSONNE WHERE id_personne="+Integer.parseInt(id)+";");
-                rs.next();
-                name.setText(rs.getString("nom_personne"));
-                tel.setText(rs.getInt("tel_personne")+"");
-                numAdr.setText(rs.getInt("num_rue")+"");
-                libAdr.setText(rs.getString("lib_rue"));
-                cdeAdr.setText(rs.getInt("cde_postal")+"");
-                villeAdr.setText(rs.getString("ville"));
-                
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-            }finally{
-                try {
-                    stmt.close();
-                } catch (SQLException ex) {
-                    System.err.println(ex.getMessage());
-                }
-            }
-            
-            Scene scene = new Scene(grid, 400, 400);
-            scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
-            stage.setScene(scene);
-
-            stage.showAndWait();
-            refreshList();
-        }
-        refreshList();
-    }
-    
-    @FXML
-    public void delClient(){
-        String s = (String) clientList.getSelectionModel().getSelectedItem();
-        if(s != null){
-            s = s.split(":")[0];
-            Statement stmt = null;
-
-            try{
-                stmt = connection.createStatement();
-                stmt.executeUpdate("DELETE FROM PERSONNE WHERE id_personne="+s);
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-            }finally{
-                try {
-                    stmt.close();
-                } catch (SQLException ex) {
-                    System.err.println(ex.getMessage());
-                }
-            }
-        }
-        refreshList();
-    }
-    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Ingredients">
     @FXML
@@ -1888,7 +972,909 @@ public class MainWindowController implements Initializable {
     }
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="Fonction pour les Commandes">
+    @FXML
+    public void addCmd(){
+        
+         // <editor-fold defaultstate="collapsed" desc="Interface Utilisateur">
+         Stage stage = new Stage();
+        List<TextField> list = new ArrayList<>();
+        
+        stage.setTitle("Commande");
+        
+        
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        
+        
+        Text scenetitle = new Text(" Nouvelle Commande");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        grid.add(scenetitle, 0, 0, 4, 2);
+        scenetitle.setId("title");
+        
+        
+        Label dateL = new Label(" Date (YYYY-MM-dd):");
+        grid.add(dateL, 0, 3);
+
+        TextField date = new TextField();
+        grid.add(date, 1, 3,2, 1);
+        list.add(date);
+        
+        Label clientL = new Label(" Nom client :");
+        grid.add(clientL, 0, 4);
+
+        TextField client = new TextField();
+        grid.add(client, 1, 4,2, 1);
+        list.add(client);
+        
+        Label ingL = new Label(" Produit (prod1/qte1;prod2/qte2) :");
+        grid.add(ingL, 0, 6);
+        
+        TextArea prods = new TextArea();
+        grid.add(prods, 1, 6,2,5);
+        
+        Button cancelBtn = new Button("Annuler");        
+        Button validBtn = new Button("Valider");
+        
+        
+        final Text actiontarget = new Text();
+        grid.add(actiontarget, 1, 11,2,1);
+        actiontarget.setId("actiontarget");
+
+        HBox hbBtn = new HBox(10);
+        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hbBtn.getChildren().add(validBtn);
+        grid.add(hbBtn, 3, 11);
+        grid.add(cancelBtn, 0, 11);
+
+        //</editor-fold>
+        
+        validBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                int cpt = 0;
+                Statement stmt = null; 
+                
+                
+                for (TextField t : list)
+                    if(t.getText().isEmpty()){
+                        cpt++;
+                        t.setStyle("-fx-border-color: firebrick;");
+                    }else{
+                        t.setStyle("-fx-border-color: white;");
+                    }
+                if(prods.getText().isEmpty())
+                    cpt++;
+                    
+                if(cpt == 0){
+                    try {
+                        Ingredient ingredient;
+                        ResultSet rs;
+                        stmt = connection.createStatement();
+                        
+                        rs = stmt.executeQuery("SELECT count(*) AS n FROM PERSONNE WHERE nom_personne='"+client.getText()+"';");
+                        rs.next();
+                        
+                        if(rs.getInt("n") != 0){
+                            
+                            String[] str = prods.getText().split(";");
+                            for(int i=0;i<str.length;i++){
+                                if(!str[i].isEmpty()){
+                                    rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM PRODUIT WHERE nom_prod='"+str[i].split("/")[0]+"' AND qte_prod>"+Integer.parseInt(str[i].split("/")[1])+";");
+                                    rs.next();
+                                    if(rs.getInt("n") == 0){
+                                        prods.setStyle("-fx-border-color: firebrick;");
+                                        actiontarget.setText("Produit inconnu ou insuffisant !");
+                                        actiontarget.setFill(Color.FIREBRICK);
+                                        return;
+                                    }
+                                }
+                            }
+                            
+                            
+                            rs = stmt.executeQuery("SELECT id_personne FROM PERSONNE WHERE nom_personne='"+client.getText()+"';");
+                            rs.next();
+                            Commande commande = new Commande(date.getText(),rs.getInt("id_personne"));
+                            float sum = 0;
+                            for(String s : str){
+                                if(!s.isEmpty()){
+                                    rs = stmt.executeQuery("SELECT * FROM PRODUIT WHERE nom_prod='"+s.split("/")[0]+"';");
+                                    int qte = Integer.parseInt(s.split("/")[1]);
+                                    rs.next();
+                                    int idProd = rs.getInt("id_produit");
+                                    float cur = qte*rs.getFloat("prix_prod");
+                                    stmt.executeUpdate("INSERT INTO CONSTITUER VALUES("+commande.getId()+","+idProd+","+qte+","+cur+");");
+                                    stmt.executeUpdate("UPDATE PRODUIT SET qte_prod=qte_prod-"+Integer.parseInt(s.split("/")[1])+" WHERE id_produit="+idProd);
+                                    sum+=cur;
+                                }
+                            }
+                            commande.setPrixTotal(sum);
+                            stmt.executeUpdate(commande.getCreationQuery());
+                            
+                            }else{
+                                client.setStyle("-fx-border-color: firebrick;");
+                                actiontarget.setText("Client inconnu !");
+                                actiontarget.setFill(Color.FIREBRICK);
+                                return;
+                            }
+                        
+                        stage.close();
+                        
+                    } catch (SQLException ex) {
+                        System.err.println(ex.getMessage());
+                        actiontarget.setText("Echec à l'insertion SQL");
+                        actiontarget.setFill(Color.FIREBRICK);
+                    }finally {
+                        if (stmt != null) { 
+                            try {
+                                stmt.close();
+                            } catch (SQLException ex) {
+                                System.err.println(ex.getMessage());
+                            }
+                        }
+                    }
+                }else{
+                    actiontarget.setText("Certain champs sont vide");
+                    actiontarget.setFill(Color.FIREBRICK);
+                }
+            }
+        });
+
+        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                stage.close();
+            }
+        });
+        
+        
+        Scene scene = new Scene(grid, 550, 350);
+        scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
+        stage.setScene(scene);
+        
+        stage.showAndWait();
+        refreshList();
+    }
     
+    
+    @FXML
+    public void delCmd(){
+        String s = (String) cmdList.getSelectionModel().getSelectedItem();
+        if(s != null){
+            s = s.split(":")[0];
+            Statement stmt = null;
+
+            try{
+                stmt = connection.createStatement();
+                stmt.executeUpdate("DELETE FROM COMMANDE WHERE id_commande="+s);
+                stmt.executeUpdate("DELETE FROM CONSTITUER WHERE id_commande="+s);
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }finally{
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+        }
+        refreshList();
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Fonction pour les Fournisseurs">
+    @FXML
+    public void addFour(){
+        Stage stage = new Stage();
+        List<TextField> list = new ArrayList<>();
+        
+        stage.setTitle("Fournisseur");
+        
+        
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(0, 0, 0, 0));
+
+        
+        Text scenetitle = new Text("Nouveau fournisseur");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        grid.add(scenetitle, 0, 0, 4, 1);
+        scenetitle.setId("title");
+        
+        
+        Label nameL = new Label("Nom :");
+        grid.add(nameL, 0, 2);
+
+        TextField name = new TextField();
+        grid.add(name, 1, 2,3, 1);
+        list.add(name);
+        
+        Label telL = new Label("Tel :");
+        grid.add(telL, 0, 3);
+
+        TextField tel = new NumberField();
+        grid.add(tel, 1, 3,3, 1);
+        list.add(tel);
+        
+        Label adresseTitle = new Label("Adresse");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
+        HBox hbAdr = new HBox(10);
+        hbAdr.setAlignment(Pos.CENTER);
+        hbAdr.getChildren().add(adresseTitle);
+        grid.add(hbAdr, 0, 5, 4, 1);
+        
+        Label numAdrL = new Label("Numero :");
+        grid.add(numAdrL, 0, 6);
+
+        TextField numAdr = new NumberField();
+        grid.add(numAdr, 1, 6);
+        list.add(numAdr);
+        
+        Label libAdrL = new Label("Rue :");
+        grid.add(libAdrL, 0, 7);
+
+        TextField libAdr = new TextField();
+        grid.add(libAdr, 1, 7,3, 1);
+        list.add(libAdr);
+        
+        Label cdeAdrL = new Label("Code Postal :");
+        grid.add(cdeAdrL, 0, 8);
+
+        TextField cdeAdr = new NumberField();
+        grid.add(cdeAdr, 1, 8);
+        list.add(cdeAdr);
+        
+        Label villeAdrL = new Label("Ville :");
+        grid.add(villeAdrL, 0, 9);
+
+        TextField villeAdr = new TextField();
+        grid.add(villeAdr, 1, 9,3,1);
+        list.add(villeAdr);
+       
+        
+        
+        Button cancelBtn = new Button("Annuler");        
+        Button validBtn = new Button("Valider");
+        
+        
+        final Text actiontarget = new Text();
+        grid.add(actiontarget, 1, 11,2,1);
+        actiontarget.setId("actiontarget");
+
+        HBox hbBtn = new HBox(10);
+        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hbBtn.getChildren().add(validBtn);
+        grid.add(hbBtn, 3, 11);
+        grid.add(cancelBtn, 0, 11);
+
+        
+        validBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                int cpt = 0;
+                Statement stmt = null; 
+                
+                
+                for (TextField t : list)
+                    if(t.getText().isEmpty()){
+                        cpt++;
+                        t.setStyle("-fx-border-color: firebrick;");
+                    }else{
+                        t.setStyle("-fx-border-color: white;");
+                    }
+                    
+                if(cpt == 0){
+                    try {
+                        Adresse adr = new Adresse(Integer.parseInt(numAdr.getText()), libAdr.getText(), Integer.parseInt(cdeAdr.getText()), villeAdr.getText());
+                        Fournisseur fournisseur = new Fournisseur(name.getText(), Integer.parseInt(tel.getText()), adr);
+                        
+                        stmt = connection.createStatement();
+                        stmt.executeUpdate(adr.getCreationQuery());
+                        stmt.executeUpdate(fournisseur.getCreationQuery());
+                        stage.close();
+                        
+                    } catch (SQLException ex) {
+                        System.err.println(ex.getMessage());
+                        actiontarget.setText("Echec à l'insertion SQL");
+                        actiontarget.setFill(Color.FIREBRICK);
+                    }finally {
+                        if (stmt != null) { 
+                            try {
+                                stmt.close();
+                            } catch (SQLException ex) {
+                                System.err.println(ex.getMessage());
+                            }
+                        }
+                    }
+                }else{
+                    actiontarget.setText("Certain champs sont vide");
+                    actiontarget.setFill(Color.FIREBRICK);
+                }
+            }
+        });
+
+        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                stage.close();
+            }
+        });
+        
+        
+        Scene scene = new Scene(grid, 400, 400);
+        scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
+        stage.setScene(scene);
+        
+        stage.showAndWait();
+        refreshList();
+    }
+    
+    @FXML
+    public void modFour(){
+        String s = (String) fourList.getSelectionModel().getSelectedItem();
+        final String id;
+        if(s != null){
+            id = s.split(":")[0];
+            Statement stmt = null;
+            
+            
+            // <editor-fold defaultstate="collapsed" desc="Interface Utilisateur pour les fournisseurs">
+            Stage stage = new Stage();
+            List<TextField> list = new ArrayList<>();
+
+            stage.setTitle("Fournisseur");
+
+
+            GridPane grid = new GridPane();
+            grid.setAlignment(Pos.CENTER);
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(0, 0, 0, 0));
+
+
+            Text scenetitle = new Text("Modifier fournisseur");
+            scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+            grid.add(scenetitle, 0, 0, 4, 1);
+            scenetitle.setId("title");
+
+
+            Label nameL = new Label("Nom :");
+            grid.add(nameL, 0, 2);
+
+            TextField name = new TextField();
+            grid.add(name, 1, 2,3, 1);
+            list.add(name);
+
+            Label telL = new Label("Tel :");
+            grid.add(telL, 0, 3);
+
+            TextField tel = new NumberField();
+            grid.add(tel, 1, 3,3, 1);
+            list.add(tel);
+
+            Label adresseTitle = new Label("Adresse");
+            scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
+            HBox hbAdr = new HBox(10);
+            hbAdr.setAlignment(Pos.CENTER);
+            hbAdr.getChildren().add(adresseTitle);
+            grid.add(hbAdr, 0, 5, 4, 1);
+
+            Label numAdrL = new Label("Numero :");
+            grid.add(numAdrL, 0, 6);
+
+            TextField numAdr = new NumberField();
+            grid.add(numAdr, 1, 6);
+            list.add(numAdr);
+
+            Label libAdrL = new Label("Rue :");
+            grid.add(libAdrL, 0, 7);
+
+            TextField libAdr = new TextField();
+            grid.add(libAdr, 1, 7,3, 1);
+            list.add(libAdr);
+
+            Label cdeAdrL = new Label("Code Postal :");
+            grid.add(cdeAdrL, 0, 8);
+
+            TextField cdeAdr = new NumberField();
+            grid.add(cdeAdr, 1, 8);
+            list.add(cdeAdr);
+
+            Label villeAdrL = new Label("Ville :");
+            grid.add(villeAdrL, 0, 9);
+
+            TextField villeAdr = new TextField();
+            grid.add(villeAdr, 1, 9,3,1);
+            list.add(villeAdr);
+
+
+
+            Button cancelBtn = new Button("Annuler");        
+            Button validBtn = new Button("Valider");
+
+
+            final Text actiontarget = new Text();
+            grid.add(actiontarget, 1, 11,2,1);
+            actiontarget.setId("actiontarget");
+
+            HBox hbBtn = new HBox(10);
+            hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+            hbBtn.getChildren().add(validBtn);
+            grid.add(hbBtn, 3, 11);
+            grid.add(cancelBtn, 0, 11);
+
+            // </editor-fold>
+
+            validBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    int cpt = 0;
+                    Statement stmt = null; 
+
+
+                    for (TextField t : list)
+                        if(t.getText().isEmpty()){
+                            cpt++;
+                            t.setStyle("-fx-border-color: firebrick;");
+                        }else{
+                            t.setStyle("-fx-border-color: white;");
+                        }
+
+                    if(cpt == 0){
+                        try {
+                            stmt = connection.createStatement();
+                            stmt.executeUpdate("DELETE FROM FOURNISSEUR WHERE id_fournisseur="+Integer.parseInt(id)+";");
+                            stmt.executeUpdate("DELETE FROM ADRESSE WHERE num_rue="+Integer.parseInt(numAdr.getText())+" AND lib_rue='"+libAdr.getText()+"' AND cde_postal="+Integer.parseInt(cdeAdr.getText())+" AND ville='"+villeAdr.getText()+"';");
+                            
+                            Adresse adr = new Adresse(Integer.parseInt(numAdr.getText()), libAdr.getText(), Integer.parseInt(cdeAdr.getText()), villeAdr.getText());
+                            Fournisseur fournisseur = new Fournisseur(Integer.parseInt(id),name.getText(), Integer.parseInt(tel.getText()), adr);
+
+                            stmt.executeUpdate(adr.getCreationQuery());
+                            stmt.executeUpdate(fournisseur.getCreationQuery());
+                            stage.close();
+
+                        } catch (SQLException ex) {
+                            System.err.println(ex.getMessage());
+                            actiontarget.setText("Echec à l'insertion SQL");
+                            actiontarget.setFill(Color.FIREBRICK);
+                        }finally {
+                            if (stmt != null) { 
+                                try {
+                                    stmt.close();
+                                } catch (SQLException ex) {
+                                    System.err.println(ex.getMessage());
+                                }
+                            }
+                        }
+                    }else{
+                        actiontarget.setText("Certain champs sont vide");
+                        actiontarget.setFill(Color.FIREBRICK);
+                    }
+                }
+            });
+
+            cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    stage.close();
+                }
+            });
+            
+            try{
+                stmt = connection.createStatement();
+                
+                ResultSet rs = stmt.executeQuery("SELECT * FROM FOURNISSEUR WHERE id_fournisseur="+Integer.parseInt(id)+";");
+                rs.next();
+                name.setText(rs.getString("nom_fournisseur"));
+                tel.setText(rs.getInt("tel_fournisseur")+"");
+                numAdr.setText(rs.getInt("num_rue")+"");
+                libAdr.setText(rs.getString("lib_rue"));
+                cdeAdr.setText(rs.getInt("cde_postal")+"");
+                villeAdr.setText(rs.getString("ville"));
+                
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }finally{
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+            
+            Scene scene = new Scene(grid, 400, 400);
+            scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
+            stage.setScene(scene);
+
+            stage.showAndWait();
+            refreshList();
+        }
+        refreshList();
+    }
+    
+    @FXML
+    public void delFour(){
+        String s = (String) fourList.getSelectionModel().getSelectedItem();
+        if(s != null){
+            s = s.split(":")[0];
+            Statement stmt = null;
+
+            try{
+                stmt = connection.createStatement();
+                stmt.executeUpdate("DELETE FROM FOURNISSEUR WHERE id_fournisseur="+s);
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }finally{
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+        }
+        refreshList();
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Fonction pour les CLient">
+    @FXML
+    public void addClient(){
+        Stage stage = new Stage();
+        List<TextField> list = new ArrayList<>();
+        
+        stage.setTitle("Client");
+        
+        
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(0, 0, 0, 0));
+
+        
+        Text scenetitle = new Text("Nouveau client");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        grid.add(scenetitle, 0, 0, 4, 1);
+        scenetitle.setId("title");
+        
+        
+        Label nameL = new Label("Nom :");
+        grid.add(nameL, 0, 2);
+
+        TextField name = new TextField();
+        grid.add(name, 1, 2,3, 1);
+        list.add(name);
+        
+        Label telL = new Label("Tel :");
+        grid.add(telL, 0, 3);
+
+        TextField tel = new NumberField();
+        grid.add(tel, 1, 3,3, 1);
+        list.add(tel);
+        
+        Label adresseTitle = new Label("Adresse");
+        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
+        HBox hbAdr = new HBox(10);
+        hbAdr.setAlignment(Pos.CENTER);
+        hbAdr.getChildren().add(adresseTitle);
+        grid.add(hbAdr, 0, 5, 4, 1);
+        
+        Label numAdrL = new Label("Numero :");
+        grid.add(numAdrL, 0, 6);
+
+        TextField numAdr = new NumberField();
+        grid.add(numAdr, 1, 6);
+        list.add(numAdr);
+        
+        Label libAdrL = new Label("Rue :");
+        grid.add(libAdrL, 0, 7);
+
+        TextField libAdr = new TextField();
+        grid.add(libAdr, 1, 7,3, 1);
+        list.add(libAdr);
+        
+        Label cdeAdrL = new Label("Code Postal :");
+        grid.add(cdeAdrL, 0, 8);
+
+        TextField cdeAdr = new NumberField();
+        grid.add(cdeAdr, 1, 8);
+        list.add(cdeAdr);
+        
+        Label villeAdrL = new Label("Ville :");
+        grid.add(villeAdrL, 0, 9);
+
+        TextField villeAdr = new TextField();
+        grid.add(villeAdr, 1, 9,3,1);
+        list.add(villeAdr);
+       
+        
+        
+        Button cancelBtn = new Button("Annuler");        
+        Button validBtn = new Button("Valider");
+        
+        
+        final Text actiontarget = new Text();
+        grid.add(actiontarget, 1, 11,2,1);
+        actiontarget.setId("actiontarget");
+
+        HBox hbBtn = new HBox(10);
+        hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hbBtn.getChildren().add(validBtn);
+        grid.add(hbBtn, 3, 11);
+        grid.add(cancelBtn, 0, 11);
+
+        
+        validBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                int cpt = 0;
+                Statement stmt = null; 
+                
+                
+                for (TextField t : list)
+                    if(t.getText().isEmpty()){
+                        cpt++;
+                        t.setStyle("-fx-border-color: firebrick;");
+                    }else{
+                        t.setStyle("-fx-border-color: white;");
+                    }
+                    
+                if(cpt == 0){
+                    try {
+                        Adresse adr = new Adresse(Integer.parseInt(numAdr.getText()), libAdr.getText(), Integer.parseInt(cdeAdr.getText()), villeAdr.getText());
+                        Personne personne = new Personne(name.getText(), Integer.parseInt(tel.getText()), adr);
+                        
+                        stmt = connection.createStatement();
+                        stmt.executeUpdate(adr.getCreationQuery());
+                        stmt.executeUpdate(personne.getCreationQuery());
+                        stage.close();
+                        
+                    } catch (SQLException ex) {
+                        System.err.println(ex.getMessage());
+                        actiontarget.setText("Echec à l'insertion SQL");
+                        actiontarget.setFill(Color.FIREBRICK);
+                    }finally {
+                        if (stmt != null) { 
+                            try {
+                                stmt.close();
+                            } catch (SQLException ex) {
+                                System.err.println(ex.getMessage());
+                            }
+                        }
+                    }
+                }else{
+                    actiontarget.setText("Certain champs sont vide");
+                    actiontarget.setFill(Color.FIREBRICK);
+                }
+            }
+        });
+
+        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                stage.close();
+            }
+        });
+        
+        
+        Scene scene = new Scene(grid, 400, 400);
+        scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
+        stage.setScene(scene);
+        
+        stage.showAndWait();
+        refreshList();
+    }
+    
+    @FXML
+    public void modClient(){
+        String s = (String) clientList.getSelectionModel().getSelectedItem();
+        final String id;
+        if(s != null){
+            id = s.split(":")[0];
+            Statement stmt = null;
+            
+            
+            // <editor-fold defaultstate="collapsed" desc="Interface Utilisateur pour les personnes">
+            Stage stage = new Stage();
+            List<TextField> list = new ArrayList<>();
+
+            stage.setTitle("Client");
+
+
+            GridPane grid = new GridPane();
+            grid.setAlignment(Pos.CENTER);
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(0, 0, 0, 0));
+
+
+            Text scenetitle = new Text("Modifier client");
+            scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+            grid.add(scenetitle, 0, 0, 4, 1);
+            scenetitle.setId("title");
+
+
+            Label nameL = new Label("Nom :");
+            grid.add(nameL, 0, 2);
+
+            TextField name = new TextField();
+            grid.add(name, 1, 2,3, 1);
+            list.add(name);
+
+            Label telL = new Label("Tel :");
+            grid.add(telL, 0, 3);
+
+            TextField tel = new NumberField();
+            grid.add(tel, 1, 3,3, 1);
+            list.add(tel);
+
+            Label adresseTitle = new Label("Adresse");
+            scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
+            HBox hbAdr = new HBox(10);
+            hbAdr.setAlignment(Pos.CENTER);
+            hbAdr.getChildren().add(adresseTitle);
+            grid.add(hbAdr, 0, 5, 4, 1);
+
+            Label numAdrL = new Label("Numero :");
+            grid.add(numAdrL, 0, 6);
+
+            TextField numAdr = new NumberField();
+            grid.add(numAdr, 1, 6);
+            list.add(numAdr);
+
+            Label libAdrL = new Label("Rue :");
+            grid.add(libAdrL, 0, 7);
+
+            TextField libAdr = new TextField();
+            grid.add(libAdr, 1, 7,3, 1);
+            list.add(libAdr);
+
+            Label cdeAdrL = new Label("Code Postal :");
+            grid.add(cdeAdrL, 0, 8);
+
+            TextField cdeAdr = new NumberField();
+            grid.add(cdeAdr, 1, 8);
+            list.add(cdeAdr);
+
+            Label villeAdrL = new Label("Ville :");
+            grid.add(villeAdrL, 0, 9);
+
+            TextField villeAdr = new TextField();
+            grid.add(villeAdr, 1, 9,3,1);
+            list.add(villeAdr);
+
+
+
+            Button cancelBtn = new Button("Annuler");        
+            Button validBtn = new Button("Valider");
+
+
+            final Text actiontarget = new Text();
+            grid.add(actiontarget, 1, 11,2,1);
+            actiontarget.setId("actiontarget");
+
+            HBox hbBtn = new HBox(10);
+            hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
+            hbBtn.getChildren().add(validBtn);
+            grid.add(hbBtn, 3, 11);
+            grid.add(cancelBtn, 0, 11);
+
+            // </editor-fold>
+
+            validBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    int cpt = 0;
+                    Statement stmt = null; 
+
+
+                    for (TextField t : list)
+                        if(t.getText().isEmpty()){
+                            cpt++;
+                            t.setStyle("-fx-border-color: firebrick;");
+                        }else{
+                            t.setStyle("-fx-border-color: white;");
+                        }
+
+                    if(cpt == 0){
+                        try {
+                            stmt = connection.createStatement();
+                            stmt.executeUpdate("DELETE FROM PERSONNE WHERE id_personne="+Integer.parseInt(id)+";");
+                            stmt.executeUpdate("DELETE FROM ADRESSE WHERE num_rue="+Integer.parseInt(numAdr.getText())+" AND lib_rue='"+libAdr.getText()+"' AND cde_postal="+Integer.parseInt(cdeAdr.getText())+" AND ville='"+villeAdr.getText()+"';");
+                            
+                            Adresse adr = new Adresse(Integer.parseInt(numAdr.getText()), libAdr.getText(), Integer.parseInt(cdeAdr.getText()), villeAdr.getText());
+                            Personne personne = new Personne(Integer.parseInt(id),name.getText(), Integer.parseInt(tel.getText()), adr);
+
+                            stmt.executeUpdate(adr.getCreationQuery());
+                            stmt.executeUpdate(personne.getCreationQuery());
+                            stage.close();
+
+                        } catch (SQLException ex) {
+                            System.err.println(ex.getMessage());
+                            actiontarget.setText("Echec à l'insertion SQL");
+                            actiontarget.setFill(Color.FIREBRICK);
+                        }finally {
+                            if (stmt != null) { 
+                                try {
+                                    stmt.close();
+                                } catch (SQLException ex) {
+                                    System.err.println(ex.getMessage());
+                                }
+                            }
+                        }
+                    }else{
+                        actiontarget.setText("Certain champs sont vide");
+                        actiontarget.setFill(Color.FIREBRICK);
+                    }
+                }
+            });
+
+            cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    stage.close();
+                }
+            });
+            
+            try{
+                stmt = connection.createStatement();
+                
+                ResultSet rs = stmt.executeQuery("SELECT * FROM PERSONNE WHERE id_personne="+Integer.parseInt(id)+";");
+                rs.next();
+                name.setText(rs.getString("nom_personne"));
+                tel.setText(rs.getInt("tel_personne")+"");
+                numAdr.setText(rs.getInt("num_rue")+"");
+                libAdr.setText(rs.getString("lib_rue"));
+                cdeAdr.setText(rs.getInt("cde_postal")+"");
+                villeAdr.setText(rs.getString("ville"));
+                
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }finally{
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+            
+            Scene scene = new Scene(grid, 400, 400);
+            scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
+            stage.setScene(scene);
+
+            stage.showAndWait();
+            refreshList();
+        }
+        refreshList();
+    }
+    
+    @FXML
+    public void delClient(){
+        String s = (String) clientList.getSelectionModel().getSelectedItem();
+        if(s != null){
+            s = s.split(":")[0];
+            Statement stmt = null;
+
+            try{
+                stmt = connection.createStatement();
+                stmt.executeUpdate("DELETE FROM PERSONNE WHERE id_personne="+s);
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }finally{
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    System.err.println(ex.getMessage());
+                }
+            }
+        }
+        refreshList();
+    }
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Fonction récupération des listes">
     public ObservableList<String> selectAllPersonne(){
@@ -2002,6 +1988,7 @@ public class MainWindowController implements Initializable {
     }
     //</editor-fold > 
     
+    
     public void refreshList(){
         ObservableList<String> lCommande = selectAllCommande();
         ObservableList<String> lPersonne = selectAllPersonne();
@@ -2016,8 +2003,6 @@ public class MainWindowController implements Initializable {
         prodList.setItems(lProduit);
         
     }
-    
-    
     
     /**
      * Initializes the controller class.

@@ -53,8 +53,7 @@
                     <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
                     <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
                 </columnConstraints>
-                <Button onAction="#addCmd" styleClass="btn" GridPane.columnIndex="0" GridPane.halignment="CENTER">+</Button>            
-                <Button onAction="#modCmd" styleClass="btn" GridPane.columnIndex="1" GridPane.halignment="CENTER">Modifier</Button>                        
+                <Button onAction="#addCmd" styleClass="btn" GridPane.columnIndex="0" GridPane.halignment="CENTER">+</Button>                               
                 <Button onAction="#delCmd" styleClass="btn" GridPane.columnIndex="2" GridPane.halignment="CENTER">-</Button>            
             </GridPane>
         </VBox>
