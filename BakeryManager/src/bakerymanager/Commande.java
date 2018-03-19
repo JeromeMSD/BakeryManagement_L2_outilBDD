@@ -7,6 +7,9 @@ package bakerymanager;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
+import javafx.scene.control.DatePicker;
+import javafx.util.converter.DateTimeStringConverter;
 
 /**
  *
@@ -15,12 +18,14 @@ import java.util.HashMap;
 public class Commande {
     public static int compteurCom = 0;
     private int idCommande;
+    private int personne;
     private Date date;
     private float prixTotal=0;
+    private DateTimeStringConverter format = new DateTimeStringConverter(Locale.FRANCE,"YYYY-MM-dd");
     private HashMap<Produit,Integer> commande;
     
     public Commande(Date d,HashMap<Produit, Integer> commande){
-        compteurCom ++;
+        compteurCom++;
         this.idCommande = compteurCom;
         this.date=d;
         this.commande=commande;
@@ -32,12 +37,27 @@ public class Commande {
         this.date = fromString;
         this.prixTotal = aFloat;
     }
+
+    Commande(Date fromString, int text) {
+        compteurCom++;
+        this.idCommande = compteurCom;
+        this.date = fromString;
+        this.personne = text;
+    }
     
     
     
     @Override
     public String toString () {
         return idCommande+": "+date+"->"+prixTotal;
+    }
+
+    String getCreationQuery() {
+        return "INSERT INTO COMMANDE VALUES("+this.idCommande+","+this.personne+",'"+format.toString(this.date)+"',"+this.prixTotal+");";
+    }
+
+    int getId() {
+       return idCommande;
     }
     
 }

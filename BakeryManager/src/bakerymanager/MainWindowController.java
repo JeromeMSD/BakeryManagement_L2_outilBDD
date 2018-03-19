@@ -26,8 +26,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -58,7 +60,7 @@ public class MainWindowController implements Initializable {
     private ListView prodList;
     
     private final Connection connection;
-    private DateTimeStringConverter format = new DateTimeStringConverter(Locale.FRANCE,"dd/MM/YYYY");
+    private DateTimeStringConverter format2 = new DateTimeStringConverter(Locale.FRANCE,"YYYY-MM-dd");
     
     MainWindowController(Connection conn) {
         this.connection = conn;
@@ -200,75 +202,51 @@ public class MainWindowController implements Initializable {
     // <editor-fold defaultstate="collapsed" desc="Fonction pour les Commandes">
     @FXML
     public void addCmd(){
+         // <editor-fold defaultstate="collapsed" desc="Interface Utilisateur">
          Stage stage = new Stage();
         List<TextField> list = new ArrayList<>();
         
-        stage.setTitle("Client");
+        stage.setTitle("Ingredient");
         
         
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
-        grid.setPadding(new Insets(0, 0, 0, 0));
-
         
-        Text scenetitle = new Text("Nouveau client");
+        
+        Text scenetitle = new Text(" Nouvelle Commande");
         scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        grid.add(scenetitle, 0, 0, 4, 1);
+        grid.add(scenetitle, 0, 0, 4, 2);
         scenetitle.setId("title");
         
         
-        Label nameL = new Label("Nom :");
-        grid.add(nameL, 0, 2);
+        Label dateL = new Label(" Date (YYYY-MM-dd):");
+        grid.add(dateL, 0, 3);
 
-        TextField name = new TextField();
-        grid.add(name, 1, 2,3, 1);
-        list.add(name);
+        TextField date = new TextField();
+        grid.add(date, 1, 3,2, 1);
+        list.add(date);
         
-        Label telL = new Label("Tel :");
-        grid.add(telL, 0, 3);
+        Label clientL = new Label(" Nom client :");
+        grid.add(clientL, 0, 4);
 
-        TextField tel = new NumberField();
-        grid.add(tel, 1, 3,3, 1);
-        list.add(tel);
+        TextField client = new TextField();
+        grid.add(client, 1, 4,2, 1);
+        list.add(client);
         
-        Label adresseTitle = new Label("Adresse");
-        scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 40));
-        HBox hbAdr = new HBox(10);
-        hbAdr.setAlignment(Pos.CENTER);
-        hbAdr.getChildren().add(adresseTitle);
-        grid.add(hbAdr, 0, 5, 4, 1);
-        
-        Label numAdrL = new Label("Numero :");
-        grid.add(numAdrL, 0, 6);
+        Label qteL = new Label(" Prix Total :");
+        grid.add(qteL, 0, 5);
 
-        TextField numAdr = new NumberField();
-        grid.add(numAdr, 1, 6);
-        list.add(numAdr);
+        TextField qte = new TextField();
+        grid.add(qte, 1, 5,2, 1);
+        list.add(qte);
         
-        Label libAdrL = new Label("Rue :");
-        grid.add(libAdrL, 0, 7);
-
-        TextField libAdr = new TextField();
-        grid.add(libAdr, 1, 7,3, 1);
-        list.add(libAdr);
+        Label ingL = new Label(" Produit (prod1/qte1;prod2/qte2) :");
+        grid.add(ingL, 0, 6);
         
-        Label cdeAdrL = new Label("Code Postal :");
-        grid.add(cdeAdrL, 0, 8);
-
-        TextField cdeAdr = new NumberField();
-        grid.add(cdeAdr, 1, 8);
-        list.add(cdeAdr);
-        
-        Label villeAdrL = new Label("Ville :");
-        grid.add(villeAdrL, 0, 9);
-
-        TextField villeAdr = new TextField();
-        grid.add(villeAdr, 1, 9,3,1);
-        list.add(villeAdr);
-       
-        
+        TextArea prods = new TextArea();
+        grid.add(prods, 1, 6,2,5);
         
         Button cancelBtn = new Button("Annuler");        
         Button validBtn = new Button("Valider");
@@ -284,6 +262,7 @@ public class MainWindowController implements Initializable {
         grid.add(hbBtn, 3, 11);
         grid.add(cancelBtn, 0, 11);
 
+        //</editor_fold>
         
         validBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -299,15 +278,55 @@ public class MainWindowController implements Initializable {
                     }else{
                         t.setStyle("-fx-border-color: white;");
                     }
+                if(prods.getText().isEmpty())
+                    cpt++;
                     
                 if(cpt == 0){
                     try {
-                        Adresse adr = new Adresse(Integer.parseInt(numAdr.getText()), libAdr.getText(), Integer.parseInt(cdeAdr.getText()), villeAdr.getText());
-                        Personne personne = new Personne(name.getText(), Integer.parseInt(tel.getText()), adr);
-                        
+                        Ingredient ingredient;
+                        ResultSet rs;
                         stmt = connection.createStatement();
-                        stmt.executeUpdate(adr.getCreationQuery());
-                        stmt.executeUpdate(personne.getCreationQuery());
+                        
+                        rs = stmt.executeQuery("SELECT count(*) AS n FROM PERSONNE WHERE nom_personne='"+client.getText()+"';");
+                        rs.next();
+                        
+                        if(rs.getInt("n") != 0){
+                            
+                            String[] str = prods.getText().split(";");
+                            for(String s : str){
+                                if(!s.isEmpty()){
+                                    rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM PRODUIT WHERE nom_prod='"+s.split("/")[0]+"' AND qte_prod>"+Integer.parseInt(s.split("/")[1])*Integer.parseInt(qte.getText())+";");
+                                    rs.next();
+                                    if(rs.getInt("n") == 0){
+                                        prods.setStyle("-fx-border-color: firebrick;");
+                                        actiontarget.setText("Produit inconnu ou insuffisant !");
+                                        actiontarget.setFill(Color.FIREBRICK);
+                                        return;
+                                    }
+                                }
+                            }
+                            
+                            
+                            rs = stmt.executeQuery("SELECT id_personne FROM PERSONNE WHERE nom_personne='"+client.getText()+"';");
+                            rs.next();
+                            Commande commande = new Commande(format2.fromString(date.getText()),rs.getInt("id_personne"));
+                            stmt.executeUpdate(commande.getCreationQuery());
+                            
+                            for(String s : str){
+                                if(!s.isEmpty()){
+                                    rs = stmt.executeQuery("SELECT * FROM PRODUIT WHERE nom_prod='"+s.split("/")[0]+"';");
+                                    int qte = Integer.parseInt(s.split("/")[1]);
+                                    rs.next();
+                                    stmt.executeUpdate("INSERT INTO CONSTITUER VALUES("+commande.getId()+","+rs.getInt("id_produit")+","+qte+","+qte*rs.getFloat("prix_prod")+");");
+                                }
+                            }
+                            }else{
+                                client.setStyle("-fx-border-color: firebrick;");
+                                actiontarget.setText("Client inconnu !");
+                                actiontarget.setFill(Color.FIREBRICK);
+                                return;
+                            }
+                        
                         stage.close();
                         
                     } catch (SQLException ex) {
@@ -338,7 +357,7 @@ public class MainWindowController implements Initializable {
         });
         
         
-        Scene scene = new Scene(grid, 400, 400);
+        Scene scene = new Scene(grid, 550, 350);
         scene.getStylesheets().add(Login.class.getResource("/css/MainCss.css").toExternalForm());
         stage.setScene(scene);
         
@@ -361,6 +380,7 @@ public class MainWindowController implements Initializable {
             try{
                 stmt = connection.createStatement();
                 stmt.executeUpdate("DELETE FROM COMMANDE WHERE id_commande="+s);
+                stmt.executeUpdate("DELETE FROM CONSTITUER WHERE id_commande="+s);
             } catch (SQLException ex) {
                 System.err.println(ex.getMessage());
             }finally{
@@ -1116,11 +1136,18 @@ public class MainWindowController implements Initializable {
         grid.add(name, 1, 3,3, 1);
         list.add(name);
         
+        Label fourL = new Label("Nom Fournisseur :");
+        grid.add(fourL, 0, 4);
+
+        TextField four = new TextField();
+        grid.add(four, 1, 4,3, 1);
+        list.add(four);
+        
         Label qteL = new Label("Quantite :");
-        grid.add(qteL, 0, 4);
+        grid.add(qteL, 0, 5);
 
         TextField qte = new NumberField();
-        grid.add(qte, 1, 4,3, 1);
+        grid.add(qte, 1, 5,3, 1);
         list.add(qte);
         
         
@@ -1129,14 +1156,14 @@ public class MainWindowController implements Initializable {
         
         
         final Text actiontarget = new Text();
-        grid.add(actiontarget, 1, 5,2,1);
+        grid.add(actiontarget, 1, 6,2,1);
         actiontarget.setId("actiontarget");
 
         HBox hbBtn = new HBox(10);
         hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hbBtn.getChildren().add(validBtn);
-        grid.add(hbBtn, 3, 5);
-        grid.add(cancelBtn, 0, 5);
+        grid.add(hbBtn, 3, 6);
+        grid.add(cancelBtn, 0, 6);
 
         
         validBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -1156,9 +1183,27 @@ public class MainWindowController implements Initializable {
                     
                 if(cpt == 0){
                     try {
-                        Ingredient ingredient = new Ingredient(name.getText(), Integer.parseInt(qte.getText()));
-                        
+                        Ingredient ingredient;
+                        ResultSet rs;
                         stmt = connection.createStatement();
+                        
+                        rs = stmt.executeQuery("SELECT count(*) AS n FROM FOURNISSEUR WHERE nom_fournisseur='"+four.getText()+"';");
+                        rs.next();
+                        
+                        if(rs.getInt("n") != 0){
+                            ingredient = new Ingredient(name.getText(), Integer.parseInt(qte.getText()));
+                                
+                            rs = stmt.executeQuery("SELECT id_fournisseur FROM FOURNISSEUR WHERE nom_fournisseur='"+four.getText()+"';");
+                            rs.next();
+                            stmt.executeUpdate("INSERT INTO FOURNIR VALUES("+rs.getInt("id_fournisseur")+","+ingredient.getId()+","+qte.getText()+");");
+                            
+                            }else{
+                                four.setStyle("-fx-border-color: firebrick;");
+                                actiontarget.setText("Fournisseur inconnu !");
+                                actiontarget.setFill(Color.FIREBRICK);
+                                return;
+                            }
+                        
                         stmt.executeUpdate(ingredient.getCreationQuery());
                         stage.close();
                         
@@ -1218,7 +1263,7 @@ public class MainWindowController implements Initializable {
             grid.setVgap(10);
 
 
-            Label scenetitle = new Label("Nouvel ingredient");
+            Label scenetitle = new Label("Modifier ingredient");
             scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
             grid.add(scenetitle, 0, 0, 4, 2);
             scenetitle.setId("title");
@@ -1231,12 +1276,20 @@ public class MainWindowController implements Initializable {
             TextField name = new TextField();
             grid.add(name, 1, 3,3, 1);
             list.add(name);
+                    
+            Label fourL = new Label("Nom Fournisseur :");
+            grid.add(fourL, 0, 4);
+
+            TextField four = new TextField();
+            grid.add(four, 1, 4,3, 1);
+            list.add(four);
+
 
             Label qteL = new Label("Quantite :");
-            grid.add(qteL, 0, 4);
+            grid.add(qteL, 0, 5);
 
             TextField qte = new NumberField();
-            grid.add(qte, 1, 4,3, 1);
+            grid.add(qte, 1, 5,3, 1);
             list.add(qte);
 
 
@@ -1245,14 +1298,14 @@ public class MainWindowController implements Initializable {
 
 
             final Text actiontarget = new Text();
-            grid.add(actiontarget, 1, 5,2,1);
+            grid.add(actiontarget, 1, 6,2,1);
             actiontarget.setId("actiontarget");
 
             HBox hbBtn = new HBox(10);
             hbBtn.setAlignment(Pos.BOTTOM_RIGHT);
             hbBtn.getChildren().add(validBtn);
-            grid.add(hbBtn, 3, 5);
-            grid.add(cancelBtn, 0, 5);
+            grid.add(hbBtn, 3, 6);
+            grid.add(cancelBtn, 0, 6);
 
 
             validBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -1272,12 +1325,31 @@ public class MainWindowController implements Initializable {
 
                     if(cpt == 0){
                         try {
-                            Ingredient ingredient = new Ingredient(Integer.parseInt(id),name.getText(), Integer.parseInt(qte.getText()));
-
+                            Ingredient ingredient;
+                            ResultSet rs;
                             stmt = connection.createStatement();
-                            
-                            stmt.executeUpdate("DELETE FROM INGREDIENT WHERE id_ingredient="+Integer.parseInt(id)+";");
-                            
+
+                            rs = stmt.executeQuery("SELECT count(*) AS n FROM FOURNISSEUR WHERE nom_fournisseur='"+four.getText()+"';");
+                            rs.next();
+
+                            if(rs.getInt("n") != 0){
+                                ingredient = new Ingredient(Integer.parseInt(id),name.getText(), Integer.parseInt(qte.getText()));
+
+                                stmt.executeUpdate("DELETE FROM INGREDIENT WHERE id_ingredient="+Integer.parseInt(id)+";");
+                                stmt.executeUpdate("DELETE FROM FOURNIR WHERE id_ingredient="+Integer.parseInt(id)+";");
+                                stmt.executeUpdate("DELETE FROM NECESSITER WHERE id_ingredient="+Integer.parseInt(id)+";");
+                                
+                                rs = stmt.executeQuery("SELECT id_fournisseur FROM FOURNISSEUR WHERE nom_fournisseur='"+four.getText()+"';");
+                                rs.next();
+                                stmt.executeUpdate("INSERT INTO FOURNIR VALUES("+rs.getInt("id_fournisseur")+","+ingredient.getId()+","+qte.getText()+");");
+
+                                }else{
+                                    four.setStyle("-fx-border-color: firebrick;");
+                                    actiontarget.setText("Fournisseur inconnu !");
+                                    actiontarget.setFill(Color.FIREBRICK);
+                                    return;
+                                }
+                        
                             stmt.executeUpdate(ingredient.getCreationQuery());
                             stage.close();
 
@@ -1346,6 +1418,8 @@ public class MainWindowController implements Initializable {
                 stmt = connection.createStatement();
                 stmt.executeUpdate("DELETE FROM INGREDIENT WHERE id_ingredient="+s);
                 stmt.executeUpdate("DELETE FROM NECESSITER WHERE id_ingredient="+s);
+                stmt.executeUpdate("DELETE FROM FOURNIR WHERE id_ingredient="+s);
+                
             } catch (SQLException ex) {
                 System.err.println(ex.getMessage());
             }finally{
@@ -1485,7 +1559,7 @@ public class MainWindowController implements Initializable {
                         for(TextField t : ingList){
                             String s = t.getText();
                             if(!s.isEmpty()){
-                                rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM INGREDIENT WHERE nom_ingredient='"+s.split("/")[0]+"';");
+                                rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM INGREDIENT WHERE nom_ingredient='"+s.split("/")[0]+"' AND qte_disponible>"+Integer.parseInt(s.split("/")[1])*Integer.parseInt(qte.getText())+";");
                                 rs.next();
                                 if(rs.getInt("n") == 0){
                                     t.setStyle("-fx-border-color: firebrick;");
@@ -1506,7 +1580,7 @@ public class MainWindowController implements Initializable {
                             }
                             
                         }else{
-                            actiontarget.setText("Ingredient inconnu !");
+                            actiontarget.setText("Ingredient inconnu ou insuffisant !");
                             actiontarget.setFill(Color.FIREBRICK);
                             return;
                         }
@@ -1574,7 +1648,7 @@ public class MainWindowController implements Initializable {
             grid.setPadding(new Insets(0, 0, 0, 0));
 
 
-            Text scenetitle = new Text("Nouveau produit");
+            Text scenetitle = new Text("Modifier produit");
             scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
             grid.add(scenetitle, 0, 0, 4, 1);
             scenetitle.setId("title");
@@ -1680,7 +1754,7 @@ public class MainWindowController implements Initializable {
                             for(TextField t : ingList){
                                 String s = t.getText();
                                 if(!s.isEmpty()){
-                                    rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM INGREDIENT WHERE nom_ingredient='"+s.split("/")[0]+"';");
+                                    rs = stmt.executeQuery("SELECT COUNT(*) AS n FROM INGREDIENT WHERE nom_ingredient='"+s.split("/")[0]+"' AND qte_disponible>"+Integer.parseInt(s.split("/")[1])*Integer.parseInt(qte.getText())+";");
                                     rs.next();
                                     if(rs.getInt("n") == 0){
                                         t.setStyle("-fx-border-color: firebrick;");
@@ -1693,6 +1767,7 @@ public class MainWindowController implements Initializable {
                                
                                 stmt.executeUpdate("DELETE FROM PRODUIT WHERE id_produit="+Integer.parseInt(id)+";");
                                 stmt.executeUpdate("DELETE FROM NECESSITER WHERE id_produit="+Integer.parseInt(id)+";");
+                                stmt.executeUpdate("DELETE FROM CONSTITUER WHERE id_produit="+Integer.parseInt(id)+";");
                                 stmt.executeUpdate(produit.getCreationQuery());
                                 
                                 for(TextField t : ingList){
@@ -1789,6 +1864,7 @@ public class MainWindowController implements Initializable {
                 stmt = connection.createStatement();
                 stmt.executeUpdate("DELETE FROM PRODUIT WHERE id_produit="+s);
                 stmt.executeUpdate("DELETE FROM NECESSITER WHERE id_produit="+s);
+                stmt.executeUpdate("DELETE FROM CONSTITUER WHERE id_produit="+s);
             } catch (SQLException ex) {
                 System.err.println(ex.getMessage());
             }finally{
@@ -1861,7 +1937,7 @@ public class MainWindowController implements Initializable {
             ResultSet rs = stmt.executeQuery(query);
 
             while (rs.next()) {
-                Commande c  = new Commande(rs.getInt("id_commande"),format.fromString(rs.getString("date_cmd")), rs.getFloat("prix_total"));
+                Commande c  = new Commande(rs.getInt("id_commande"),format2.fromString(rs.getString("date_cmd")),rs.getFloat("prix_total"));
                 l.add(c.toString());
             }
             

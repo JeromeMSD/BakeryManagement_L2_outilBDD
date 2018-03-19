@@ -6,12 +6,12 @@ CREATE TABLE ADRESSE (
    PRIMARY KEY(num_rue,lib_rue,cde_postal,ville)
 );
 
-
-
 CREATE TABLE COMMANDE (
-   id_commande  int(5) NOT NULL PRIMARY KEY,
+   id_commande int(5) NOT NULL PRIMARY KEY,
+   id_personne int(5) NOT NULL,
    date_cmd  date,
-   prix_total  float
+   prix_total  float,
+   FOREIGN KEY(id_personne) REFERENCES PERSONNE(id_personne)
 );
 
 CREATE TABLE PERSONNE (
