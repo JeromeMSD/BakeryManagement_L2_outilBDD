@@ -37,14 +37,14 @@ public class Adresse {
     
     @Override
     public String toString () {
-        return numRue+", "+libRue+", "+codePostal+" "+ville;
+        return this.numRue+", "+this.libRue+", "+this.codePostal+" "+this.ville;
     }
 
-    String getCreationQuery() {
+    public String getCreationQuery() {
         return "INSERT INTO ADRESSE VALUES ("+this.numRue+",'"+this.libRue+"',"+this.codePostal+",'"+this.ville+"');";
     }
 
-    String getReferenceQuery() {
+    public String getReferenceQuery() {
         return this.numRue+",'"+this.libRue+"',"+this.codePostal+",'"+this.ville+"'";
     }
     

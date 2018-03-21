@@ -16,21 +16,21 @@ public class Ingredient {
     private int qte;
     
 
-    Ingredient(int aInt, String string, int aInt0) {
-        this.idIngredient = aInt;
-        this.nomIngredient = string;
-        this.qte = aInt0;
+    public Ingredient(int idIngredient, String nomIngredient, int qteIngredient) {
+        this.idIngredient = idIngredient;
+        this.nomIngredient = nomIngredient;
+        this.qte = qteIngredient;
     }
 
-    Ingredient(String text, int parseInt) {
+    public Ingredient(String nomIngredient, int qteIngredient) {
         compteurIng++;
         this.idIngredient = compteurIng;
-        this.nomIngredient = text;
-        this.qte = parseInt;
+        this.nomIngredient = nomIngredient;
+        this.qte = qteIngredient;
     }
 
     public int getId(){
-        return idIngredient;
+        return this.idIngredient;
     }
     
     @Override
@@ -38,7 +38,7 @@ public class Ingredient {
         return this.getId()+": "+this.nomIngredient+"->"+this.qte;
     }
     
-    String getCreationQuery() {
+    public String getCreationQuery() {
         return "INSERT INTO INGREDIENT VALUES("+this.getId()+",'"+this.nomIngredient+"',"+this.qte+");";
     }
 }

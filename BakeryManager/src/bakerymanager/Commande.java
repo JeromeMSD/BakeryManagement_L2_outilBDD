@@ -16,34 +16,34 @@ public class Commande {
     private String date;
     private float prixTotal=0;
 
-    public Commande(int aInt, String fromString, float aFloat) {
-        this.idCommande = aInt;
-        this.date = fromString;
-        this.prixTotal = aFloat;
+    public Commande(int idCommande, String date, float prixTotal) {
+        this.idCommande = idCommande;
+        this.date = date;
+        this.prixTotal = prixTotal;
     }
 
-    Commande(String fromString, int text) {
+    public Commande(String date, int idPersonne) {
         compteurCom++;
         this.idCommande = compteurCom;
-        this.date = fromString;
-        this.personne = text;
+        this.date = date;
+        this.personne = idPersonne;
     }
     
-    public void setPrixTotal(float f){
-        this.prixTotal = f;
+    public void setPrixTotal(float newTotal){
+        this.prixTotal = newTotal;
     }
     
     @Override
     public String toString () {
-        return idCommande+": "+date+"->"+prixTotal;
+        return this.idCommande+": "+this.date+"->"+this.prixTotal;
     }
 
-    String getCreationQuery() {
+    public String getCreationQuery() {
         return "INSERT INTO COMMANDE VALUES("+this.idCommande+","+this.personne+",'"+this.date+"',"+this.prixTotal+");";
     }
 
     int getId() {
-       return idCommande;
+       return this.idCommande;
     }
     
 }

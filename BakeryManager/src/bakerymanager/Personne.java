@@ -42,23 +42,12 @@ public class Personne{
     }
     
     public int getId(){
-        return idPersonne;
-    }
-    
-    // Prend une liste de produit / Quantite
-    public int Acheter (){
-        //Enlève les produit des stock et retourne le prix total.
-        return 0;
-    }
-    
-    public void Commander (HashMap <Produit, Integer> commande){
-        /*Date actuel + Contenu de la commande(produit/qte)*/
-        //Commande newCom = New Commande ();//Crée une commande
+        return this.idPersonne;
     }
     
     @Override
     public String toString () {
-        return idPersonne+": "+nomPersonne+"->"+telPersonne+" Adresse: "+adresse.toString();
+        return this.idPersonne+": "+this.nomPersonne+"->"+this.telPersonne+" Adresse: "+this.adresse.toString();
     }
     
     public String getCreationQuery() {

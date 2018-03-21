@@ -5,8 +5,6 @@
  */
 package bakerymanager;
 
-import java.util.HashMap;
-
 /**
  *
  * @author romain
@@ -21,11 +19,7 @@ public class Fournisseur extends Personne{
     public Fournisseur(int idPersonne, String nomPersonne, int telPersonne,Adresse adr){
         super(idPersonne, nomPersonne, telPersonne, adr);
     }
-          
-    public void Livrer (HashMap <Ingredient,Integer> livraison){
-        // Association ingrédient / Quantité
-    }
-    
+
     @Override
     public String getCreationQuery() {
         return "INSERT INTO FOURNISSEUR VALUES("+this.getId()+",'"+this.getNomPersonne()+"',"+this.getTelPersonne()+","+this.adresse.getReferenceQuery()+");";

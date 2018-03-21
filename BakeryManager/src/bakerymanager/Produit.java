@@ -1,7 +1,5 @@
 package bakerymanager;
 
-import java.util.HashMap;
-
 /**
  *
  * @author Nicolas
@@ -13,8 +11,7 @@ public class Produit {
     private String nomProd;
     private float prix;
     private int qte;
-    private HashMap<Ingredient,Integer> recette; // Comment créer le produit ? Ingredient + quantité
-    
+
     public Produit (String nomProd, float prix, int qte){
         compteurProd ++;
         this.idProduit = compteurProd;
@@ -23,16 +20,16 @@ public class Produit {
         this.qte=qte;
     }
 
-    Produit(int aInt, String string, float aFloat, int aInt0) {
-        this.idProduit = aInt;
-        this.nomProd = string;
-        this.prix = aFloat;
-        this.qte = aInt0;
+    public Produit(int idProduit, String nomProduit, float prixProduit, int qteProduit) {
+        this.idProduit = idProduit;
+        this.nomProd = nomProduit;
+        this.prix = prixProduit;
+        this.qte = qteProduit;
     }
     
     @Override
     public String toString () {
-        return idProduit+": "+nomProd+"("+qte+") ->"+prix;
+        return this.idProduit+": "+this.nomProd+"("+this.qte+") ->"+this.prix;
     }
 
     public String getCreationQuery() {
@@ -43,7 +40,7 @@ public class Produit {
         return this.idProduit;
     }
 
-    int getQuantite() {
+    public int getQuantite() {
         return this.qte;
     }
 }
